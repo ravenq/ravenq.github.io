@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Linux Programing -- ch13-- 进程间通信：管道 | Ravenq 的个人博客</title>
+    <meta name="description" content="">
+    
+    
+    <link rel="preload" href="/assets/css/0.styles.4e1e9e1f.css" as="style"><link rel="preload" href="/assets/js/app.46e62880.js" as="script"><link rel="preload" href="/assets/js/16.ffb21bb3.js" as="script"><link rel="prefetch" href="/assets/js/10.c86c1ca0.js"><link rel="prefetch" href="/assets/js/11.bcdb929e.js"><link rel="prefetch" href="/assets/js/12.966ff564.js"><link rel="prefetch" href="/assets/js/13.f65adc85.js"><link rel="prefetch" href="/assets/js/14.fc5fe175.js"><link rel="prefetch" href="/assets/js/15.a92a3e8f.js"><link rel="prefetch" href="/assets/js/17.011882c9.js"><link rel="prefetch" href="/assets/js/18.3daa6950.js"><link rel="prefetch" href="/assets/js/19.30d0e839.js"><link rel="prefetch" href="/assets/js/2.7fdb2499.js"><link rel="prefetch" href="/assets/js/20.f8913486.js"><link rel="prefetch" href="/assets/js/21.e172f780.js"><link rel="prefetch" href="/assets/js/22.8218cd5f.js"><link rel="prefetch" href="/assets/js/23.45eb61b5.js"><link rel="prefetch" href="/assets/js/24.f07f4e44.js"><link rel="prefetch" href="/assets/js/25.de8c7777.js"><link rel="prefetch" href="/assets/js/26.0374c741.js"><link rel="prefetch" href="/assets/js/27.a2b7c06e.js"><link rel="prefetch" href="/assets/js/28.435dd0d7.js"><link rel="prefetch" href="/assets/js/29.06af7a50.js"><link rel="prefetch" href="/assets/js/3.c514c9bb.js"><link rel="prefetch" href="/assets/js/30.eb1913d5.js"><link rel="prefetch" href="/assets/js/31.f4394e88.js"><link rel="prefetch" href="/assets/js/32.668dffff.js"><link rel="prefetch" href="/assets/js/33.e0fa4c55.js"><link rel="prefetch" href="/assets/js/34.71408e4e.js"><link rel="prefetch" href="/assets/js/35.be231ec0.js"><link rel="prefetch" href="/assets/js/36.f4ce2254.js"><link rel="prefetch" href="/assets/js/4.4b39041d.js"><link rel="prefetch" href="/assets/js/5.26404c51.js"><link rel="prefetch" href="/assets/js/6.1f1bba03.js"><link rel="prefetch" href="/assets/js/7.e3349a13.js"><link rel="prefetch" href="/assets/js/8.c62eea19.js"><link rel="prefetch" href="/assets/js/9.aed313c3.js">
+    <link rel="stylesheet" href="/assets/css/0.styles.4e1e9e1f.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/" class="home-link router-link-active"><!----> <span class="site-name">Ravenq 的个人博客</span></a> <div class="links" style="max-width:nullpx;"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <!----></div></header> <div class="sidebar-mask"></div> <div class="sidebar"><!---->  <ul class="sidebar-links"><li><div class="sidebar-group first"><p class="sidebar-heading open"><span>Linux Programing -- ch13-- 进程间通信：管道</span> <!----></p> <ul class="sidebar-group-items"><li><a href="/blog.md/20.html#_1-popen-pclose" class="sidebar-link">1. popen &amp; pclose</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog.md/20.html#_2-pipe-调用" class="sidebar-link">2. pipe 调用</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog.md/20.html#_3-命名管道" class="sidebar-link">3. 命名管道</a><ul class="sidebar-sub-headers"></ul></li></ul></div></li></ul> </div> <div class="page"> <div class="content"><h1 id="linux-programing-ch13-进程间通信：管道"><a href="#linux-programing-ch13-进程间通信：管道" aria-hidden="true" class="header-anchor">#</a> Linux Programing -- ch13-- 进程间通信：管道</h1> <h2 id="_1-popen-pclose"><a href="#_1-popen-pclose" aria-hidden="true" class="header-anchor">#</a> 1. popen &amp; pclose</h2> <div class="language-C extra-class"><pre class="language-c"><code><span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h&gt;</span></span>
+
+FILE <span class="token operator">*</span><span class="token function">popen</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span>command<span class="token punctuation">,</span> <span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span>open_mode<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">int</span> <span class="token function">pclose</span><span class="token punctuation">(</span>FILE <span class="token operator">*</span>stream_to_close<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+</code></pre></div><p>popen 函数允许一个程序将另一个程序作为新到程序启动，并可以传递数据给它或者通过它接收数据。command 字符差要运行到程序到命令和相应到参数。open_mode 必须所 &quot;r&quot; 或者 &quot;w&quot;。</p> <p>调用 plclose 来关闭管道，pclose 调用只在 popen 启动到进程结束后才会返回，返回进程退出码。如果在调用 pclose 之前执行来一个 wait 语句，被调用进程到退出码就会丢失，因为调用进程已经结束，此时 pclose 返回 -1 并设置 errno 为 ECHILD。</p> <p>例程:</p> <div class="language-C extra-class"><pre class="language-c"><code><span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;unistd.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;stdlib.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;string.h&gt;</span></span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token keyword">int</span> argc<span class="token punctuation">,</span> <span class="token keyword">char</span> <span class="token operator">*</span>argv<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    FILE <span class="token operator">*</span>read_fp<span class="token punctuation">;</span>
+    <span class="token keyword">char</span> buffer<span class="token punctuation">[</span>BUFSIZ <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token keyword">int</span> chars_read<span class="token punctuation">;</span>
+    <span class="token function">memset</span><span class="token punctuation">(</span>buffer<span class="token punctuation">,</span> <span class="token string">'\0'</span><span class="token punctuation">,</span> <span class="token keyword">sizeof</span><span class="token punctuation">(</span>buffer<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    read_fp <span class="token operator">=</span> <span class="token function">popen</span><span class="token punctuation">(</span><span class="token string">&quot;uname -a&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;r&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span>read_fp <span class="token operator">!=</span> <span class="token constant">NULL</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        chars_read <span class="token operator">=</span> <span class="token function">fread</span><span class="token punctuation">(</span>buffer<span class="token punctuation">,</span> <span class="token keyword">sizeof</span><span class="token punctuation">(</span><span class="token keyword">char</span><span class="token punctuation">)</span><span class="token punctuation">,</span> BUFSIZ<span class="token punctuation">,</span> read_fp<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>chars_read <span class="token operator">&gt;</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">&quot;output was:-\n%s\n&quot;</span><span class="token punctuation">,</span> buffer<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token function">pclose</span><span class="token punctuation">(</span>read_fp<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">exit</span><span class="token punctuation">(</span>EXIT_SUCCESS<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token function">exit</span><span class="token punctuation">(</span>EXIT_FAILURE<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div><h2 id="_2-pipe-调用"><a href="#_2-pipe-调用" aria-hidden="true" class="header-anchor">#</a> 2. pipe 调用</h2> <div class="language-C extra-class"><pre class="language-c"><code><span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;unistd.h&gt;</span></span>
+
+<span class="token keyword">int</span> <span class="token function">pipe</span><span class="token punctuation">(</span><span class="token keyword">int</span> file_description<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div><p>函数填入两个文件描述符，file_description[1] 用于写入 file_description[0] 用于读出。函数失败返回 -1，错误类型：</p> <ol><li><code>EMFILE</code>：进程使用的文件描述符过多。</li> <li><code>ENFILE</code>：系统的文件表已满。</li> <li><code>EMFILE</code>：文件描述符无效。</li></ol> <p>例程：</p> <div class="language-C extra-class"><pre class="language-c"><code><span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;unistd.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;stdlib.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;string.h&gt;</span></span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token keyword">int</span> argc<span class="token punctuation">,</span> <span class="token keyword">char</span> <span class="token operator">*</span>argv<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    pid_t new_pid<span class="token punctuation">;</span>
+    <span class="token keyword">int</span> file_pipes<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token function">pipe</span><span class="token punctuation">(</span>file_pipes<span class="token punctuation">)</span> <span class="token operator">!=</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">&quot;open pipe failed&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">exit</span><span class="token punctuation">(</span>EXIT_FAILURE<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    new_pid <span class="token operator">=</span> <span class="token function">fork</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">switch</span><span class="token punctuation">(</span>new_pid<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">case</span> <span class="token operator">-</span><span class="token number">1</span><span class="token operator">:</span>
+        <span class="token punctuation">{</span>
+            <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">&quot;fork failed&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token function">exit</span><span class="token punctuation">(</span>EXIT_FAILURE<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token keyword">case</span> <span class="token number">0</span><span class="token operator">:</span>
+        <span class="token punctuation">{</span>
+            <span class="token function">close</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token function">dup</span><span class="token punctuation">(</span>file_pipes<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token function">close</span><span class="token punctuation">(</span>file_pipes<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token function">close</span><span class="token punctuation">(</span>file_pipes<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token function">execlp</span><span class="token punctuation">(</span><span class="token string">&quot;od&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;od&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;-c&quot;</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token keyword">char</span> <span class="token operator">*</span><span class="token punctuation">)</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token keyword">break</span><span class="token punctuation">;</span>
+    <span class="token keyword">default</span><span class="token operator">:</span>
+        <span class="token punctuation">{</span>
+            <span class="token function">close</span><span class="token punctuation">(</span>file_pipes<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+            <span class="token keyword">char</span> buf<span class="token punctuation">[</span><span class="token number">1024</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+            <span class="token keyword">int</span> count<span class="token punctuation">;</span>
+            <span class="token function">memset</span><span class="token punctuation">(</span>buf<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token keyword">sizeof</span><span class="token punctuation">(</span>buf<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">while</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token function">strncmp</span><span class="token punctuation">(</span>buf<span class="token punctuation">,</span> <span class="token string">&quot;end&quot;</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span> <span class="token operator">!=</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                <span class="token function">fgets</span><span class="token punctuation">(</span>buf<span class="token punctuation">,</span> <span class="token number">1024</span><span class="token punctuation">,</span> <span class="token constant">stdin</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                count <span class="token operator">=</span> <span class="token function">write</span><span class="token punctuation">(</span>file_pipes<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span> buf<span class="token punctuation">,</span> <span class="token function">strlen</span><span class="token punctuation">(</span>buf<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+                <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">&quot;%d - wrote %d byts\n&quot;</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">)</span><span class="token function">getpid</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> count<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+
+            <span class="token function">close</span><span class="token punctuation">(</span>file_pipes<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">break</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token function">exit</span><span class="token punctuation">(</span>EXIT_SUCCESS<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div><h2 id="_3-命名管道"><a href="#_3-命名管道" aria-hidden="true" class="header-anchor">#</a> 3. 命名管道</h2> <p>可以使用命令创建命名管道：</p> <div class="language-shell extra-class"><pre class="language-text"><code>$mkfifo /tmp/my_fifo
+$cat /tmp/my_fifo &amp;
+$echo abc &gt; /tmp/my_fifo
+abc
+</code></pre></div><p>创建命名管道后所有操作可以就想对待文件一样操作，API：</p> <div class="language-C extra-class"><pre class="language-c"><code><span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/types.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/stat.h&gt;</span></span>
+
+<span class="token keyword">int</span> <span class="token function">mkfifo</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span>filename<span class="token punctuation">,</span> mode_t mode<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div><p>当使用 <code>open(const char \*filename, int nflags)</code> 打开命名管道时， <code>nflags</code> 只能去取 <code>O_RDONLY</code>或者<code>O_WRONLY</code>，这个函数会阻塞除非有另一个进程以相反的方式打开，如果要取消阻塞则可以与上 <code>O_NONBLOCK</code>。</p> <p>命名管道一次写入数据是有限制的，它由<code>#define PIPE_BUF</code>定义，一般在 limits.h 头文件中，大小一般是 4096 字节。</p> <p>例程：服务器创建一个管道，循环接收客户端的数据，接收到数据后将小写转为大写，打开客户端创建的管道传给客户端。客户端接收数据，关闭管道。</p> <p>client.h</p> <div class="language-C extra-class"><pre class="language-c"><code><span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;unistd.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;stdlib.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;string.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;fcntl.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;limits.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/types.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/stat.h&gt;</span></span>
+
+<span class="token macro property">#<span class="token directive keyword">define</span> SERVER_FIFO_NAME &quot;/tmp/serv_fifo&quot;</span>
+<span class="token macro property">#<span class="token directive keyword">define</span> CLIENT_FIFO_NAME &quot;/tmp/cli_%d_fifo&quot;</span>
+
+<span class="token keyword">struct</span> <span class="token class-name">data_to_pass_st</span><span class="token punctuation">{</span>
+    pid_t client_pid<span class="token punctuation">;</span>
+    <span class="token keyword">char</span> some_data<span class="token punctuation">[</span>PIPE_BUF <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre></div><p>server.c</p> <div class="language-C extra-class"><pre class="language-c"><code><span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&quot;client.h&quot;</span></span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token keyword">int</span> argc<span class="token punctuation">,</span> <span class="token keyword">char</span> <span class="token operator">*</span>argv<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token keyword">int</span> res<span class="token punctuation">;</span>
+    <span class="token keyword">int</span> server_fifo_fd<span class="token punctuation">,</span> client_fifo_fd<span class="token punctuation">;</span>
+    <span class="token keyword">struct</span> <span class="token class-name">data_to_pass_st</span> my_data<span class="token punctuation">;</span>
+
+    <span class="token function">mkfifo</span><span class="token punctuation">(</span>SERVER_FIFO_NAME<span class="token punctuation">,</span> <span class="token number">0777</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">do</span><span class="token punctuation">{</span>
+        server_fifo_fd <span class="token operator">=</span> <span class="token function">open</span><span class="token punctuation">(</span>SERVER_FIFO_NAME<span class="token punctuation">,</span> O_RDONLY<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>server_fifo_fd <span class="token operator">==</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token function">fprintf</span><span class="token punctuation">(</span><span class="token constant">stderr</span><span class="token punctuation">,</span> <span class="token string">&quot;open server fifo failed&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token function">exit</span><span class="token punctuation">(</span>EXIT_FAILURE<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        res <span class="token operator">=</span> <span class="token function">read</span><span class="token punctuation">(</span>server_fifo_fd<span class="token punctuation">,</span> <span class="token operator">&amp;</span>my_data<span class="token punctuation">,</span> <span class="token keyword">sizeof</span><span class="token punctuation">(</span>my_data<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>res <span class="token operator">&gt;</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">char</span> <span class="token operator">*</span>tmp <span class="token operator">=</span> my_data<span class="token punctuation">.</span>some_data<span class="token punctuation">;</span>
+            <span class="token keyword">while</span><span class="token punctuation">(</span><span class="token operator">*</span>tmp<span class="token punctuation">)</span><span class="token punctuation">{</span>
+                <span class="token operator">*</span>tmp <span class="token operator">=</span> <span class="token function">toupper</span><span class="token punctuation">(</span><span class="token operator">*</span>tmp<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                tmp<span class="token operator">++</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+
+            <span class="token keyword">char</span> client_fifo<span class="token punctuation">[</span><span class="token number">256</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+            <span class="token function">sprintf</span><span class="token punctuation">(</span>client_fifo<span class="token punctuation">,</span> CLIENT_FIFO_NAME<span class="token punctuation">,</span> my_data<span class="token punctuation">.</span>client_pid<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            client_fifo_fd <span class="token operator">=</span> <span class="token function">open</span><span class="token punctuation">(</span>client_fifo<span class="token punctuation">,</span> O_WRONLY<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span>client_fifo_fd <span class="token operator">!=</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                <span class="token function">write</span><span class="token punctuation">(</span>client_fifo_fd<span class="token punctuation">,</span> <span class="token operator">&amp;</span>my_data<span class="token punctuation">,</span> <span class="token keyword">sizeof</span><span class="token punctuation">(</span>my_data<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token function">close</span><span class="token punctuation">(</span>client_fifo_fd<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token function">close</span><span class="token punctuation">(</span>server_fifo_fd<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token keyword">while</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token function">unlink</span><span class="token punctuation">(</span>SERVER_FIFO_NAME<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">exit</span><span class="token punctuation">(</span>EXIT_SUCCESS<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>client.c</p> <div class="language-C extra-class"><pre class="language-c"><code><span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&quot;client.h&quot;</span></span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token keyword">int</span> argc<span class="token punctuation">,</span> <span class="token keyword">char</span> <span class="token operator">*</span>argv<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token keyword">int</span> res<span class="token punctuation">,</span> i<span class="token punctuation">;</span>
+    <span class="token keyword">int</span> server_fifo_fd<span class="token punctuation">,</span> client_fifo_fd<span class="token punctuation">;</span>
+    <span class="token keyword">struct</span> <span class="token class-name">data_to_pass_st</span> my_data<span class="token punctuation">;</span>
+    <span class="token keyword">char</span> client_fifo<span class="token punctuation">[</span><span class="token number">256</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+    my_data<span class="token punctuation">.</span>client_pid <span class="token operator">=</span> <span class="token function">getpid</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">sprintf</span><span class="token punctuation">(</span>client_fifo<span class="token punctuation">,</span> CLIENT_FIFO_NAME<span class="token punctuation">,</span> my_data<span class="token punctuation">.</span>client_pid<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">mkfifo</span><span class="token punctuation">(</span>client_fifo<span class="token punctuation">,</span> <span class="token number">0777</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    server_fifo_fd <span class="token operator">=</span> <span class="token function">open</span><span class="token punctuation">(</span>SERVER_FIFO_NAME<span class="token punctuation">,</span> O_WRONLY<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span>server_fifo_fd <span class="token operator">==</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token function">fprintf</span><span class="token punctuation">(</span><span class="token constant">stderr</span><span class="token punctuation">,</span> <span class="token string">&quot;open server fifo failed&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">exit</span><span class="token punctuation">(</span>EXIT_FAILURE<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token function">sprintf</span><span class="token punctuation">(</span>my_data<span class="token punctuation">.</span>some_data<span class="token punctuation">,</span> <span class="token string">&quot;hello&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">write</span><span class="token punctuation">(</span>server_fifo_fd<span class="token punctuation">,</span> <span class="token operator">&amp;</span>my_data<span class="token punctuation">,</span> <span class="token keyword">sizeof</span><span class="token punctuation">(</span>my_data<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    client_fifo_fd <span class="token operator">=</span> <span class="token function">open</span><span class="token punctuation">(</span>client_fifo<span class="token punctuation">,</span> O_RDONLY<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span>client_fifo_fd <span class="token operator">!=</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        res <span class="token operator">=</span> <span class="token function">read</span><span class="token punctuation">(</span>client_fifo_fd<span class="token punctuation">,</span> <span class="token operator">&amp;</span>my_data<span class="token punctuation">,</span> <span class="token keyword">sizeof</span><span class="token punctuation">(</span>my_data<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>res <span class="token operator">&gt;</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">&quot;%d -- received: %s\n&quot;</span><span class="token punctuation">,</span> <span class="token function">getpid</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> my_data<span class="token punctuation">.</span>some_data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token function">close</span><span class="token punctuation">(</span>client_fifo_fd<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token function">close</span><span class="token punctuation">(</span>server_fifo_fd<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">unlink</span><span class="token punctuation">(</span>client_fifo<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">exit</span><span class="token punctuation">(</span>EXIT_SUCCESS<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div></div> <div class="page-edit"><!----> <!----></div> <!----> </div> <!----></div></div>
+    <script src="/assets/js/app.46e62880.js" defer></script><script src="/assets/js/16.ffb21bb3.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,23 @@
+{
+  "name": "ravenq.github.io",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "dev": "vuepress dev",
+    "build": "vuepress build",
+    "dist": "gulp"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ravenq/ravenq.github.io.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ravenq/ravenq.github.io/issues"
+  },
+  "homepage": "https://github.com/ravenq/ravenq.github.io#readme",
+  "dependencies": {
+    "gulp": "^4.0.0"
+  }
+}

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Python 扩展 | Ravenq 的个人博客</title>
+    <meta name="description" content="">
+    
+    
+    <link rel="preload" href="/assets/css/0.styles.4e1e9e1f.css" as="style"><link rel="preload" href="/assets/js/app.46e62880.js" as="script"><link rel="preload" href="/assets/js/17.011882c9.js" as="script"><link rel="prefetch" href="/assets/js/10.c86c1ca0.js"><link rel="prefetch" href="/assets/js/11.bcdb929e.js"><link rel="prefetch" href="/assets/js/12.966ff564.js"><link rel="prefetch" href="/assets/js/13.f65adc85.js"><link rel="prefetch" href="/assets/js/14.fc5fe175.js"><link rel="prefetch" href="/assets/js/15.a92a3e8f.js"><link rel="prefetch" href="/assets/js/16.ffb21bb3.js"><link rel="prefetch" href="/assets/js/18.3daa6950.js"><link rel="prefetch" href="/assets/js/19.30d0e839.js"><link rel="prefetch" href="/assets/js/2.7fdb2499.js"><link rel="prefetch" href="/assets/js/20.f8913486.js"><link rel="prefetch" href="/assets/js/21.e172f780.js"><link rel="prefetch" href="/assets/js/22.8218cd5f.js"><link rel="prefetch" href="/assets/js/23.45eb61b5.js"><link rel="prefetch" href="/assets/js/24.f07f4e44.js"><link rel="prefetch" href="/assets/js/25.de8c7777.js"><link rel="prefetch" href="/assets/js/26.0374c741.js"><link rel="prefetch" href="/assets/js/27.a2b7c06e.js"><link rel="prefetch" href="/assets/js/28.435dd0d7.js"><link rel="prefetch" href="/assets/js/29.06af7a50.js"><link rel="prefetch" href="/assets/js/3.c514c9bb.js"><link rel="prefetch" href="/assets/js/30.eb1913d5.js"><link rel="prefetch" href="/assets/js/31.f4394e88.js"><link rel="prefetch" href="/assets/js/32.668dffff.js"><link rel="prefetch" href="/assets/js/33.e0fa4c55.js"><link rel="prefetch" href="/assets/js/34.71408e4e.js"><link rel="prefetch" href="/assets/js/35.be231ec0.js"><link rel="prefetch" href="/assets/js/36.f4ce2254.js"><link rel="prefetch" href="/assets/js/4.4b39041d.js"><link rel="prefetch" href="/assets/js/5.26404c51.js"><link rel="prefetch" href="/assets/js/6.1f1bba03.js"><link rel="prefetch" href="/assets/js/7.e3349a13.js"><link rel="prefetch" href="/assets/js/8.c62eea19.js"><link rel="prefetch" href="/assets/js/9.aed313c3.js">
+    <link rel="stylesheet" href="/assets/css/0.styles.4e1e9e1f.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/" class="home-link router-link-active"><!----> <span class="site-name">Ravenq 的个人博客</span></a> <div class="links" style="max-width:nullpx;"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <!----></div></header> <div class="sidebar-mask"></div> <div class="sidebar"><!---->  <ul class="sidebar-links"><li><div class="sidebar-group first"><p class="sidebar-heading open"><span>Python 扩展</span> <!----></p> <ul class="sidebar-group-items"><li><a href="/blog.md/21.html#c-代码" class="sidebar-link">C 代码</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog.md/21.html#代码解读" class="sidebar-link">代码解读</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog.md/21.html#编译与安装" class="sidebar-link">编译与安装</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog.md/21.html#测试模块" class="sidebar-link">测试模块</a><ul class="sidebar-sub-headers"></ul></li></ul></div></li></ul> </div> <div class="page"> <div class="content"><h1 id="python-扩展"><a href="#python-扩展" aria-hidden="true" class="header-anchor">#</a> Python 扩展</h1> <p>写这么久的代码，你有想过扩展你的语言吗？Python 提供了扩展机制，你可以 DIY 你的 Python。
+那么为什么要扩展 Python 呢？我想有一下几个理由：</p> <ul><li>添加额外的功能
+既然都叫扩展了，当然是为了添加额外的功能...</li> <li>性能瓶颈的效率提升
+Python 是一种解释性语言，理论上来说它的效率会比编译型语言的效率要低，但是 Python 已经在效率上做了很多优化，如你看到的 .pyc 中间文件，他就是为了提升效率而编译的二进制码。如果 Python 还是不能满足你的效率需求，那么你可以使用 C/C++ 来扩展你的 Python。把承重的计算任务交给 C/C++。</li> <li>代码保密
+这个就不说了，还是开源精神比较好，^_^</li></ul> <p>好了，不多说，我们来做一个扩展的小例子。</p> <h2 id="c-代码"><a href="#c-代码" aria-hidden="true" class="header-anchor">#</a> C 代码</h2> <p>MyExt.c</p> <div class="language-C extra-class"><pre class="language-c"><code><span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;stdlib.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;string.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&quot;Python.h&quot;</span></span>
+
+<span class="token comment">// 功能函数</span>
+<span class="token keyword">static</span> PyObject<span class="token operator">*</span>
+<span class="token function">MyExt_mkduple</span><span class="token punctuation">(</span>PyObject<span class="token operator">*</span> self<span class="token punctuation">,</span> PyObject<span class="token operator">*</span> args<span class="token punctuation">)</span><span class="token punctuation">{</span>
+  <span class="token keyword">char</span><span class="token operator">*</span> str<span class="token punctuation">;</span>
+  <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token operator">!</span><span class="token function">PyArg_ParseTulple</span><span class="token punctuation">(</span>args<span class="token punctuation">,</span> <span class="token string">&quot;s&quot;</span><span class="token punctuation">,</span> <span class="token operator">&amp;</span>str<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> <span class="token constant">NULL</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>PyObject<span class="token operator">*</span><span class="token punctuation">)</span><span class="token function">Py_BuildValue</span><span class="token punctuation">(</span><span class="token string">&quot;ss&quot;</span><span class="token punctuation">,</span> str<span class="token punctuation">,</span> str<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token comment">// 模块初始化</span>
+<span class="token keyword">static</span> PyMethodDef MyExtMethods<span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+  <span class="token punctuation">{</span><span class="token string">&quot;mkduple&quot;</span><span class="token punctuation">,</span> MyExt_mkduple<span class="token punctuation">,</span> METH_VARARGS <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">{</span> <span class="token constant">NULL</span><span class="token punctuation">,</span> <span class="token constant">NULL</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token keyword">void</span> <span class="token function">initMyExt</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+  <span class="token function">Py_InitModule</span><span class="token punctuation">(</span><span class="token string">&quot;MyExt&quot;</span><span class="token punctuation">,</span> MyExtMethods<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div><h2 id="代码解读"><a href="#代码解读" aria-hidden="true" class="header-anchor">#</a> 代码解读</h2> <p>1.头文件包含
+这个就不解释了，头文件一般在 /usr/local/include/python2.x 或 /usr/include/python2.x 中。 2.函数命名
+一般功能函数的命名都为 Modul_func 如本例中我们使用 MyExt_kdduple，模块扩展好之后就如下使用：</p> <div class="language-python extra-class"><pre class="language-python"><code><span class="token operator">&gt;&gt;</span><span class="token operator">&gt;</span><span class="token keyword">import</span> MyExt
+<span class="token operator">&gt;&gt;</span><span class="token operator">&gt;</span>MyExt<span class="token punctuation">.</span>mkduple<span class="token punctuation">(</span><span class="token string">'abc'</span><span class="token punctuation">)</span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token string">'abc'</span><span class="token punctuation">,</span><span class="token string">'abc'</span><span class="token punctuation">)</span>
+</code></pre></div><p>3.数据类型转换
+这里就是编写 Python 扩展代码的核心了，做完数据类型的转换，其他地方就是具体功能的 C 代码实现了。
+Python 到 C 的转换使用 PyArg_ParseTuple() 或者 PyArg_ParseTupleAndKeywords() 系列函数， C 到 Python 的转换使用 Py_BuildValue() 函数。
+函数原型:</p> <div class="language-C extra-class"><pre class="language-c"><code><span class="token keyword">int</span> <span class="token function">PyArg_ParseTuple</span><span class="token punctuation">(</span>PyObject <span class="token operator">*</span>arg<span class="token punctuation">,</span> <span class="token keyword">char</span> <span class="token operator">*</span>format<span class="token punctuation">,</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">int</span> <span class="token function">PyArg_ParseTupleAndKeywords</span><span class="token punctuation">(</span>PyObject<span class="token operator">*</span> arg<span class="token punctuation">,</span> \
+  PyObject<span class="token operator">*</span> kwdict<span class="token punctuation">,</span> <span class="token keyword">char</span><span class="token operator">*</span> format<span class="token punctuation">,</span> <span class="token keyword">char</span><span class="token operator">*</span> kwlist<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+PyObject<span class="token operator">*</span> <span class="token function">Py_BuildValue</span><span class="token punctuation">(</span><span class="token keyword">char</span><span class="token operator">*</span> format<span class="token punctuation">,</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div><p>PyArg_ParseTuple 的使用有点像 sprintf 函数，在例子中：</p> <div class="language-C extra-class"><pre class="language-c"><code><span class="token keyword">char</span><span class="token operator">*</span> str<span class="token punctuation">;</span>
+<span class="token keyword">if</span><span class="token punctuation">(</span><span class="token operator">!</span><span class="token function">PyArg_ParseTulple</span><span class="token punctuation">(</span>args<span class="token punctuation">,</span> <span class="token string">&quot;s&quot;</span><span class="token punctuation">,</span> <span class="token operator">&amp;</span>str<span class="token punctuation">)</span><span class="token punctuation">)</span>
+  <span class="token keyword">return</span> <span class="token constant">NULL</span><span class="token punctuation">;</span>
+</code></pre></div><p>Py_BuildValue d 的使用也一样，要注意的是我们返回的是一个元组，所以 format 字符串使用的 'ss':</p> <div class="language-C extra-class"><pre class="language-c"><code><span class="token keyword">return</span> <span class="token punctuation">(</span>PyObject<span class="token operator">*</span><span class="token punctuation">)</span><span class="token function">Py_BuildValue</span><span class="token punctuation">(</span><span class="token string">&quot;ss&quot;</span><span class="token punctuation">,</span> str<span class="token punctuation">,</span> str<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div><p>4.模块初始化
+最后增加一个模块初始化函数，命名为 void initModule():</p> <div class="language-C extra-class"><pre class="language-c"><code><span class="token keyword">static</span> PyMethodDef MyExtMethods<span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+  <span class="token punctuation">{</span><span class="token string">&quot;mkduple&quot;</span><span class="token punctuation">,</span> MyExt_mkduple<span class="token punctuation">,</span> METH_VARARGS <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">{</span> <span class="token constant">NULL</span><span class="token punctuation">,</span> <span class="token constant">NULL</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">void</span> <span class="token function">initMyExt</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+  <span class="token function">Py_InitModule</span><span class="token punctuation">(</span><span class="token string">&quot;MyExt&quot;</span><span class="token punctuation">,</span> MyExtMethods<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>下面一张转换通用代码表：</p> <table><thead><tr><th>格式代码</th> <th align="center">Python 类型</th> <th align="center">C/C++类型</th></tr></thead> <tbody><tr><td>s</td> <td align="center">str</td> <td align="center">char*</td></tr> <tr><td>z</td> <td align="center">str/Nome</td> <td align="center">char*/NULL</td></tr> <tr><td>i</td> <td align="center">int</td> <td align="center">int</td></tr> <tr><td>l</td> <td align="center">long</td> <td align="center">long</td></tr> <tr><td>c</td> <td align="center">str</td> <td align="center">char</td></tr> <tr><td>d</td> <td align="center">float</td> <td align="center">double</td></tr> <tr><td>D</td> <td align="center">complex</td> <td align="center">Py_Complex*</td></tr> <tr><td>O</td> <td align="center">(any)</td> <td align="center">PyObject*</td></tr> <tr><td>S</td> <td align="center">str</td> <td align="center">PyStringObject</td></tr></tbody></table> <h2 id="编译与安装"><a href="#编译与安装" aria-hidden="true" class="header-anchor">#</a> 编译与安装</h2> <p>如果使用 Makefile 来编译会比较麻烦， 而且每个平台的编译器不一样，所以 Python 提供了 distutils 包用来编译、安装和分发模块、扩展和包。</p> <p>setup.py</p> <div class="language-python extra-class"><pre class="language-python"><code><span class="token comment">#!/usr/bin/env python</span>
+
+<span class="token keyword">from</span>  distutils<span class="token punctuation">.</span>core <span class="token keyword">import</span> setup<span class="token punctuation">,</span> Extension
+
+mod_name <span class="token operator">=</span> <span class="token string">'MyExt'</span>
+mod <span class="token operator">=</span> Extension<span class="token punctuation">(</span>mod_name<span class="token punctuation">,</span> sources<span class="token operator">=</span><span class="token punctuation">[</span><span class="token string">'MyExt.c'</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+setup<span class="token punctuation">(</span>name<span class="token operator">=</span>mod_name<span class="token punctuation">,</span> ext_modules<span class="token operator">=</span><span class="token punctuation">[</span>mod<span class="token punctuation">]</span><span class="token punctuation">)</span>
+</code></pre></div><p>运行 setup.py build 编译代码</p> <div class="language-shell extra-class"><pre class="language-text"><code>$python setup.py build
+running build
+running build_ext
+building 'MyExt' extension
+creating build
+creating build/temp.linux-x86_64-2.7
+gcc -pthread -fno-strict-aliasing -fmessage-length=0 -grecord-gcc-switches -O2 -Wall -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -g -DNDEBUG -fmessage-length=0 -grecord-gcc-switches -O2 -Wall -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -g -DOPENSSL_LOAD_CONF -fPIC -I/usr/include/python2.7 -c MyExt.c -o build/temp.linux-x86_64-2.7/MyExt.o
+In file included from /usr/include/python2.7/Python.h:8:0,
+              from MyExt.c:4:
+/usr/include/python2.7/pyconfig.h:1185:0: warning: &quot;_POSIX_C_SOURCE&quot; redefined [enabled by default]
+  #define _POSIX_C_SOURCE 200112L
+  ^
+In file included from /usr/include/stdio.h:27:0,
+              from MyExt.c:1:
+/usr/include/features.h:230:0: note: this is the location of the previous definition
+  # define _POSIX_C_SOURCE 200809L
+  ^
+creating build/lib.linux-x86_64-2.7
+gcc -pthread -shared build/temp.linux-x86_64-2.7/MyExt.o -L/usr/lib64 -lpython2.7 -o build/lib.linux-x86_64-2.7/MyExt.so
+</code></pre></div><p>运行 setup.py install 安装模块</p> <div class="language-shell extra-class"><pre class="language-text"><code>$python setup.py install
+running install
+running build
+running build_ext
+running install_lib
+copying build/lib.linux-x86_64-2.7/MyExt.so -&gt; /usr/lib64/python2.7/site-packages
+running install_egg_info
+Writing /usr/lib64/python2.7/site-packages/MyExt-0.0.0-py2.7.egg-info
+</code></pre></div><h2 id="测试模块"><a href="#测试模块" aria-hidden="true" class="header-anchor">#</a> 测试模块</h2> <p>安装好之后我们来测试一下模块：</p> <div class="language-shell extra-class"><pre class="language-text"><code>&gt;&gt;&gt; import MyExt
+&gt;&gt;&gt; MyExt.mkduple('abc')
+('abc', 'abc')
+&gt;&gt;&gt;
+</code></pre></div><p>Ok, 这样一个扩展就完成了。。。</p></div> <div class="page-edit"><!----> <!----></div> <!----> </div> <!----></div></div>
+    <script src="/assets/js/app.46e62880.js" defer></script><script src="/assets/js/17.011882c9.js" defer></script>
+  </body>
+</html>
