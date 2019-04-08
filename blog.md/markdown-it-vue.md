@@ -1,0 +1,37 @@
+# makdown-it-vue
+
+* repository: [https://github.com/ravenq/markdown-it-vue](https://github.com/ravenq/markdown-it-vue)
+* demo: [http://www.aqcoder.com/markdown](http://www.aqcoder.com/markdown)
+
+最近在重构本站，本站原来是在学习Python的时候想实践一下，便选择了Django框架搭建了一个博客，本来想开源的，因为工作比较忙一直搁置了。
+
+后来对 Go 和 Vue 有了兴趣，在闲暇之余又用Go和Vue重构了本站，并草草上线了，还有很多需要优化的地方。
+
+本站博文都使用Markdown语法存储，因此需要一个markdow的语法显示组件。在网上搜了很多个组件，发现都比较杂乱，而且很多不支持流程图的语法，对Base64图片的显示支持也不大好。索性自己整理了一个markdow的Vue组件，此组件使用markdow-it做为基础，整合了常用插件：
+
+* markdown-it
+* markdown-it-emoji
+* markdown-it-sub
+* markdown-it-sup
+* markdown-it-footnote
+* markdown-it-deflist
+* markdown-it-abbr
+* markdown-it-ins
+* markdown-it-mark
+* markdown-it-katex
+* markdown-it-task-lists
+* markdown-it-icons
+* markdown-it-highlight
+* markdown-it-latex
+* markdown-it-container
+* markdown-it-github-toc
+* markdown-it-source-map
+
+并且内置实现了几个插件：
+
+* markdown-it-plugin-echarts
+* markdown-it-plugin-flowchart
+* markdown-it-plugin-mermaid
+* markdown-it-plugin-base64-img(即将实现)
+
+一个小组件，欢迎大家使用，提 issue 和 PR。
