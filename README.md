@@ -3,7 +3,8 @@ sidebar: false
 ---
 
 <!-- markdownlint-disable MD041 -->
-
+- [Vue CLI3 Travis Out Of Memory](blog.md/vue-cli3-travis-mem-out.md)
+- [gitlab nginx 代理后 Forbidden 403 错误处理](blog.md/gitlab-nginx-forbidden.md)
 - [markdown-it-vue](blog.md/33.md)
 - [CEF 介绍与分析](blog.md/7.md)
 - [Docker 简明教程](blog.md/6.md)
