@@ -185,7 +185,7 @@ application/xml
 
 下面是我的博客祸端代码，使用 Golang 编写，详细见我的博客后端项目 <http://www.github.com/ravenq/gvf-server>
 
-```Golang
+```go
   var v map[string]string
   json.Unmarshal(c.Ctx.Input.RequestBody, &v)
   code := v["code"]
@@ -220,7 +220,7 @@ GET https://api.github.com/user
 
 我的博客后端代码片段如下：
 
-```Golang
+```go
  // 获取 user info
   reqUser := httplib.Get(fmt.Sprintf("https://api.github.com/user?access_token=%s", accRet.AccessToken))
 
@@ -237,7 +237,7 @@ GET https://api.github.com/user
 
 完整的后端代码如下：
 
-```Golang
+```go
 func (c *UserController) LoginWithGithub() {
   // 获取access_token
   var v map[string]string
