@@ -39,7 +39,7 @@
 
 最后需要设置一下回调地址。
 
-[github callback url](https://ravenq-1251588610.cos.ap-guangzhou.myqcloud.com/oauth-github-6.png)
+![github callback url](https://ravenq-1251588610.cos.ap-guangzhou.myqcloud.com/oauth-github-6.png)
 
 ## 前端获取 code & state
 
@@ -55,8 +55,8 @@ https://github.com/login/oauth/authorize?client_id=your_client_id&redirect_uri=y
 
 | name         | type   | description                                                                                                                                                                                                            |
 | ------------ | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| client_id    | string | 第一步中注册到到 ClientID                                                                                                                                                                                              |
-| redirect_uri | string | 第一步中设置的回到地址                                                                                                                                                                                                 |
+| client_id    | string | 第一步中注册得到的ClientID                                                                                                                                                                                              |
+| redirect_uri | string | 第一步中设置的回调地址                                                                                                                                                                                                 |
 | loin         | string | 推荐登录的 Github 账户，一般不填                                                                                                                                                                                       |
 | scope        | string | 这个参数指定了最后能获取到的信息，取值范围有 user 和 repo 等等,默认同时取 user 和 repo 的信息，详细取值范围见[Github 文档](https://developer.github.com/apps/building-oauth-apps/understanding-scopes-for-oauth-apps/) |
 | state        | string | 你设定的一个随机值，用来防止 cross-sit 攻击                                                                                                                                                                            |
@@ -74,19 +74,19 @@ methods: {
     const clientId = GITHUB.CLIENT_ID
     const state = new Date().getTime()
     const url = `${oauthUri}?client_id=${clientId}&redirect_uri=${redirectUri}&scope=user&state=${state}`
+    window.loginWithGithub = (code, vertifyState) => {
+      this.$api.LoginWithGithub(code, vertifyState).then(res => {
+        const user = res.data
+        this.setUser(user)
+        this.spinning = false
+      })
+    }
     const myWindow = window.open(
       url,
       'aqcoder.com-login-github',
       'modal=yes,toolbar=no,titlebar=no,menuba=no,location=no,top=200,left=500,width=600,height=400'
     )
     myWindow.focus()
-    myWindow.loginGithub = (code, verifyState) => {
-      this.$api.LoginWithGithub(code, verifyState).then(res => {
-        const user = res.data
-        this.setUser(user)
-        this.spinning = false
-      })
-    }
 
     setTimeout(() => {
       if (!this.isAuthenticated) {
@@ -98,7 +98,7 @@ methods: {
 }
 ```
 
-这里我们没有使用 `<a>`标签，因为我的博客前端是用 Vue 构建的单页应用，如果使用`<a>`标签会存在跳转问题，所以我这里使用了`window.open` 弹出一个网页，待 Github 回调后，在会用`myWindow.loginGithub`调用回来。这样不会跳转网页，会比较平滑。
+这里我们没有使用 `<a>`标签，因为我的博客前端是用 Vue 构建的单页应用，如果使用`<a>`标签会存在跳转问题，所以我这里使用了`window.open` 弹出一个网页，待 Github 回调后，在会用`window.opener.loginGithub`调用回来。这样不会跳转网页，会比较平滑。
 
 回调地址也的代码如下：
 
@@ -117,7 +117,7 @@ export default {
       const code = to.query.code
       const state = to.query.state
       if (!isNil(code)) {
-        window.loginGithub(code, state)
+        window.opener.loginWithGithub(code, state)
         window.close()
       }
     })
