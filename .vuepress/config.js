@@ -1,5 +1,10 @@
 module.exports = {
   title: 'Ravenq 的技术博客',
+  description: 'Ravenq 的技术博客文章在Github的备份，博客请访问 http://www.aqcoder.com',
+  head: [
+    ['link', { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
+    ['script', { src: '/baidu-tongji.js' }]
+  ],
   themeConfig: {
     sidebar: 'auto',
     nav: [
