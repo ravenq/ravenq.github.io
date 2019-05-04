@@ -17,7 +17,8 @@
     "url": "https://github.com/ravenq/ravenq.github.io/issues"
   },
   "homepage": "https://github.com/ravenq/ravenq.github.io#readme",
-  "dependencies": {
-    "gulp": "^4.0.0"
+  "devDependencies": {
+    "gulp": "^4.0.1",
+    "vuepress": "^0.14.11"
   }
 }
