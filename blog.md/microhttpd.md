@@ -2,9 +2,9 @@
 
 libmicrohttpd 是 GUN 下开源的一个小型的 HTTP 库，能够方便的嵌入到系统中。支持 HTTP 1.1 可以同时侦听多个端口，具有 select, poll, pthread, thread poo 等多种模式，库平台支持 GNU/Linux, FreeBSD, OpenBSD, NetBSD, Android, Darwin (macOS), W32, OpenIndiana/Solaris, z/OS 等。
 
-主页： <http://www.gnu.org/software/libmicrohttpd/>
-Git: <https://git.gnunet.org/libmicrohttpd.git>
-FTP: <ftp://ftp.gnu.org/gnu/libmicrohttpd/>
+- 主页： <http://www.gnu.org/software/libmicrohttpd/>
+- Git: <https://git.gnunet.org/libmicrohttpd.git>
+- FTP: <ftp://ftp.gnu.org/gnu/libmicrohttpd/>
 
 ## 编译与安装
 
@@ -92,7 +92,7 @@ int main(int argc,
 
 现代很多应用都是前后端分离的，libmicrohttpd 可以方便的用于本地小型 httpd 服务器。可以在本地和你的应用通过 http 进行交互，你的应用甚至可以是 WEB 应用。
 
-<https://ravenq-1251588610.cos.ap-guangzhou.myqcloud.com/microhttpd-app-message.png>
+![app message](https://ravenq-1251588610.cos.ap-guangzhou.myqcloud.com/microhttpd-app-message.png)
 
 使用此方法可以解决 ActiveX 技术被现代浏览器禁用的问题。可以使用 libmicrohttpd 把你的 ActiveX 控件封装到本地服务里，然后使用 http 和 WEB 应用交互。
 
@@ -104,7 +104,7 @@ int main(int argc,
 - Access-Control-Allow-Headers
 - Access-Control-Allow-Methods
 
-<https://ravenq-1251588610.cos.ap-guangzhou.myqcloud.com/microhttpd-app-message.png>
+![post option](https://ravenq-1251588610.cos.ap-guangzhou.myqcloud.com/microhttpd-post-option.png)
 
 理解了原理，就好办了，我们在请求处理回调中先处理一次 OPTION 与请求。
 
