@@ -371,6 +371,18 @@ if (0 == strcmp(method, MHD_HTTP_METHOD_POST))
 
 这样处理会跟多此的进入 POST 数据接收回调函数 `post_iterator`。对于很多应用场景这部分有点多余，可以去除掉。
 
+## 应用代码
+
+这里假设我们的应用是一个 WEB 应用，我们使用 axios 库进行 http 请求：
+
+```js
+const data = { data: 'this is a very big string.' }
+const data2 = 'key=' + JSON.stringfy({ data: 'this is a very big string.' }) // 如果你要在 post_iterator 接受数据，data 要这么写
+axios.post('http://127.0.0.1:7080/', data, {
+  headers: { 'Content-Type': 'application/x-www-form-urlencoded' } // 这里我们使用 application/x-www-form-urlencoded 类型
+}) // 其实接收到的是 json 字符串
+```
+
 ## 注意事项
 
 有些网友在断点调试时，发现 connection 对象里有个成员 `read_buffer`，这个成员里存储了他的 POST 请求数据，那不是直接可以获取到请求数据了么。
