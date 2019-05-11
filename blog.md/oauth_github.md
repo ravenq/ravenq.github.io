@@ -1,5 +1,7 @@
 # Github OAuth2.0 的使用
 
+> 原文：<http://www.aqcoder.com/post/content?id=37>
+
 最近想为自己的博客增加一个评论功能。多说已经倒下了，畅言需要网站备案，isso 看起来也不是很好用，算了，自己折腾一个吧。
 
 评论系统其实还是又很多复杂的地方的，不能简单的画一个表单完事，会有很多垃圾评论的 →_→。我的博客系统暂时没有用户系统，一次需要一个第三方登录。
@@ -301,3 +303,5 @@ func (c *UserController) LoginWithGithub() {
 ## 最后
 
 这样整个使用 Github OAuth 登录就这样完成了，欢迎到我的博客体验： <http://www.aqcoder.com>
+
+![ravenq](https://ravenq-1251588610.cos.ap-guangzhou.myqcloud.com/ravenq-qr-gray.png)

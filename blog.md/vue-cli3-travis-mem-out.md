@@ -1,5 +1,7 @@
 # Vue CLI3 Travis Out Of Memory
 
+> 原文：<http://www.aqcoder.com/post/content?id=35>
+
 ## 起因
 
 最近把我的个人项目 <https://github.com/ravenq/markdown-it-vue> 使用 Vue CLI3 的插件 [vue-cli-plugin-component-lib](https://github.com/ravenq/vue-cli-plugin-component-lib)重构了一次。在本地Windows环境编译没有任何问题，但是在Travis上编译出现了 JavaScript heap out of memory 错误：
@@ -72,3 +74,5 @@ npm ERR! This is probably not a problem with npm. There is likely additional log
 ```json
 "build": "npx --max_old_space_size=8192 vue-cli-service  build --target lib ./src/index.js"
 ```
+
+![ravenq](https://ravenq-1251588610.cos.ap-guangzhou.myqcloud.com/ravenq-qr-gray.png)

@@ -1,5 +1,7 @@
 # VSCodium – An Open Source Visual Studio Code Without Trackers
 
+> 译文：<http://www.aqcoder.com/post/content?id=37>
+
 VSCodium是一个没有跟踪的开源VS代码编辑器
 
 我们之前有介绍过Visual Studio Code，他是一款很好的代码编辑器。虽然VS Code是开源的免费软件，但是他的源代码只能在微软官方上获得，而且下载只能在一个包含遥测系统的封闭式源代码授权下进行。因此我们应该对今天介绍的的这个代码编辑器感到高兴。
@@ -33,26 +35,26 @@ VSCodium的产品特征
 
 添加GPG。
 
-```sh
-$ wget -qO - https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/raw/master/pub.gpg | sudo apt-key add -
+```shell
+wget -qO - https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/raw/master/pub.gpg | sudo apt-key add -
 ```
 
 添加仓库。
 
-```sh
-$ echo 'deb https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/raw/repos/debs/ vscodium main' | sudo tee --append /etc/apt/sources.list.d/vscodium.list
+```shell
+echo 'deb https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/raw/repos/debs/ vscodium main' | sudo tee --append /etc/apt/sources.list.d/vscodium.list
 ```
 
 更新并安装。
 
 ```sh
-$ sudo apt update && sudo apt install vscodium
+sudo apt update && sudo apt install vscodium
 ```
 
 VSCodium默认安装在 ParrotOS 系统上，如果没有安装在你的系统上，可以用以下简单的命令安装。
 
 ```sh
-$ sudo apt update && apt install vscodium
+sudo apt update && apt install vscodium
 ```
 
 在 Fedora / Centos / OpenSUSE 这三个系统当中，你可以使用以下命令安装 VSCodium。
@@ -74,3 +76,5 @@ $ sudo apt update && apt install vscodium
 你可以阅读手册把 vs Code 的插件和偏好设置转换到 VSCodium.你还在使用不同的操作系统吗？这里将会介绍怎样在你的系统上安装 VSCodium。
 
 你认为VSCodium怎么样？我想那些因为微软跟踪的信息而不想使用Visual Studio代码的开发人员会更喜欢使用VSCodium。在下面的评论部分告诉我们你的想法。
+
+![ravenq](https://ravenq-1251588610.cos.ap-guangzhou.myqcloud.com/ravenq-qr-gray.png)

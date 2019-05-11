@@ -1,5 +1,7 @@
 # libmicrohttpd 一个 C 编写的小型 HTTP 库
 
+> 原文：<http://www.aqcoder.com/post/content?id=39> by ravenq
+
 libmicrohttpd 是 GUN 下开源的一个小型的 HTTP 库，能够方便的嵌入到系统中。支持 HTTP 1.1 可以同时侦听多个端口，具有 select, poll, pthread, thread poo 等多种模式，库平台支持 GNU/Linux, FreeBSD, OpenBSD, NetBSD, Android, Darwin (macOS), W32, OpenIndiana/Solaris, z/OS 等。
 
 - 主页： <http://www.gnu.org/software/libmicrohttpd/>
@@ -422,3 +424,5 @@ const char * MHD_lookup_connection_value (struct MHD_Connection *connection, enu
 libmicrohttpd 还可以做很多事情，但是，我这里要推荐另外一个库，由 Microsoft 开源提供：<https://github.com/Microsoft/cpprestsdk>。
 
 这个库我也在研究单中，它用来做 REST 风格的 http 服务器应该会更加的简单，然后原生支持 `application/json` 数据格式了。
+
+![ravenq](https://ravenq-1251588610.cos.ap-guangzhou.myqcloud.com/ravenq-qr-gray.png)

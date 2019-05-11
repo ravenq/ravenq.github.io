@@ -1,5 +1,7 @@
 # gitlab nginx 代理后 Forbidden 403 错误处理
 
+> 原文：<http://www.aqcoder.com/post/content?id=36>
+
 ## 环境：
 
 - 使用 docker 启动的 gitlab 服务，端口为 8080
@@ -40,3 +42,5 @@ gitlab_rails['rack_attack_git_basic_auth'] = {
    'bantime' => 3600
 }
 ```
+
+![ravenq](https://ravenq-1251588610.cos.ap-guangzhou.myqcloud.com/ravenq-qr-gray.png)
