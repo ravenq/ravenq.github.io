@@ -71,34 +71,51 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
 
 ## spring boot + spring security + Vue
 
+现在我们引入了 spring security 框架，来做权鉴。引入 pom2:
+
+```xml
+ <dependencies>
+  ...
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-security</artifactId>
+  </dependency>
+  ...
+ </dependencies>
+```
+
+增加一个简单的 Spring security 配置类型 `WebSecurityConfig.java`：
+
 ```java
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   @Autowired
-  UserService userService;
+  UserService userService; // 这里是你的用户及权限表的操作 Service
 
   @Override
   protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    // 这里做用户登录判断用户名密码
     auth.userDetailsService(new UserDetailsService() {
       @Override
       public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserEntity user = userService.getUserByName(username);
+        UserEntity user = userService.getUserByName(username); // 从你的数据库中取出用户
         if (user == null) {
           throw new UsernameNotFoundException("用户名不存在");
         }
         return user;
       }
-    }).passwordEncoder(new BCryptPasswordEncoder());
+    }).passwordEncoder(new BCryptPasswordEncoder()); // 使用 BCryptPasswordEncoder 加盐加密
   }
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
     http.authorizeRequests()
-      .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
+      .requestMatchers(CorsUtils::isPreFlightRequest).permitAll() // 这句比较重要，放过 option 请求
       .antMatchers("/css/**", "/index").permitAll()
       .antMatchers("/license/**").hasRole("ADMIN")
 
+      // 无权访问是返回 json 格式数据。
       .and().httpBasic().authenticationEntryPoint(new AuthenticationEntryPoint() {
         @Override
         public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
@@ -109,6 +126,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         }
       })
 
+      // 登录响应
       .and().formLogin().failureHandler(new AuthenticationFailureHandler() {
         @Override
         public void onAuthenticationFailure(HttpServletRequest req, HttpServletResponse resp,
@@ -150,6 +168,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         }
       }).permitAll()
 
+      // 退出登录
       .and().logout().logoutSuccessHandler(new LogoutSuccessHandler() {
         @Override
         public void onLogoutSuccess(HttpServletRequest req, HttpServletResponse resp, Authentication authentication)
@@ -163,11 +182,52 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         }
       }).permitAll()
 
-      // .and().cors();
+      // 这里还是要关闭crsf因为crsf还有token之类的安全防护
+      // 这就是这种方式不安全的原因吧
       .and().csrf().disable();
   }
 }
 
 ```
 
-## nuxt
+这样后端代码就轻松搞定了。
+
+当你很开心的取打开前端开始登录以后，你会发现，只有登录接口是正常的，其他接口都会告诉你 `need login` 也就是你还是处于未登录状态，明明登录接口都调用成功了，为什么还是未登录呢？
+
+这个估计是很多初次接触 Spring security 有使用了前后端分离同学的疑惑。其实原因很简单，Spring security 是使用 cookies-session 机制来验证用户状态的，前后端分离以后，前端有自己的服务，后端设置 cookies 当然是失败的，也就是说你的前端无法保存后端设置的 cookies。F12 可以看到 cookies 里没有 `JSESSION` 字段。
+
+这是难题，怎么办呢，这样 Spring security 就没办法整合进来了，我们来看下一种奇怪的解决方案。
+
+## nuxt proxy 解决 cookies-ssesion 问题
+
+既然 Spring security 无法整合的原因是 cookies-ssesion 无法保存引起的，那我们是不是可以在前端和后端之间加一个代理呢，让所有的请求都有代理完成：
+
+![spring-boot-nuxt-proxy](https://ravenq-1251588610.cos.ap-guangzhou.myqcloud.com/spring-boot-nuxt-proxy.png)
+
+这里为了方便我们直接使用了 [@nuxt/proxy](https://github.com/nuxt-community/proxy-module) @nuxt/proxy 是 nuxt 框架的一个模块，他使用 [http-proxy-middleware](https://github.com/chimurai/http-proxy-middleware) 作为底层实现，构建了一个代理模块。
+
+当然我们的前端也就使用 nuxt 框架了，要注意的是，使用这个模块后，就必须在 nuxt 环境下运行了，也就是说你的前端不能使用 `nuxt generate` 命令编译成静态文件，也不能使用 `spa` 模式编译出 js 文件直接扔到 nginx 里运行了，因为 http-proxy-middleware 是在 node 环境下运行的。
+
+我们在前端工程里配置 proxy, nuxt.config.js 配置片段如下
+
+```js
+axios: {
+  proxy: true
+},
+
+proxy: ['http://192.168.2.144:8080/'], // 你的后端地址
+```
+
+在开启前端，如果顺利的话应该不会再报错了。
+
+## 最后的思考
+
+这样是解决了跨域的问题和 Spring security session 的问题，有点强制整合的味道。但是这样做真的安全么？
+
+1. crsf 被禁用了安全么。
+2. 使用代理的方式，一定程度上削弱了 crsf 防御，还是很容易造成 csrf 攻击。因为服务端判断到的请求来源都是代理。后端无法判断请求是否来自可信任的来源（也就是同源策略所要解决的问题）。
+
+所以，最后我个人最后的结论，两种最终解决方案：
+
+1. 部署的时候吧前端代码打包到 spring-boot static 目录下整合发布，即使不是前后端分离了，小项目还是可以接受的。
+2. 使用 JWT，做无状态请求。
