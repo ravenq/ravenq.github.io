@@ -1,4 +1,6 @@
-# Spring-Boot + Sprint-Security + Vue 跨域问题
+# Spring-Boot + Spring-Security + Vue 跨域问题
+
+> 原文： <http://www.aqcoder.com/post/content?id=40>
 
 最近的一个小项目使用了 Spring-Boot + Vue 的前后端分离小项目，项目虽小，也五脏俱全，有自己的用户系统，因此就有了权鉴问题。
 
@@ -225,9 +227,11 @@ proxy: ['http://192.168.2.144:8080/'], // 你的后端地址
 这样是解决了跨域的问题和 Spring security session 的问题，有点强制整合的味道。但是这样做真的安全么？
 
 1. crsf 被禁用了安全么。
-2. 使用代理的方式，一定程度上削弱了 crsf 防御，还是很容易造成 csrf 攻击。因为服务端判断到的请求来源都是代理。后端无法判断请求是否来自可信任的来源（也就是同源策略所要解决的问题）。
+2. 使用代理的方式，不会造成一些安全问题呢。
 
 所以，最后我个人最后的结论，两种最终解决方案：
 
 1. 部署的时候吧前端代码打包到 spring-boot static 目录下整合发布，即使不是前后端分离了，小项目还是可以接受的。
 2. 使用 JWT，做无状态请求。
+
+![ravenq](https://ravenq-1251588610.cos.ap-guangzhou.myqcloud.com/ravenq-qr-gray.png)
