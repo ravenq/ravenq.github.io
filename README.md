@@ -3,6 +3,7 @@ sidebar: false
 ---
 
 <!-- markdownlint-disable MD041 -->
+- [Docker 容器内运行 Dubbo 服务](blog/dubbo-host.md)
 - [Spring-Boot + Spring-Security + Vue 跨域问题](blog.md/spring-boot-vue-csrf.md)
 - [libmicrohttpd 一个 C 编写的小型 HTTP 库](blog.md/microhttpd.md)
 - [VSCodium – 一个开源的不受谷歌跟踪的VS Code版本](blog.md/vscodium-introduction.md)
