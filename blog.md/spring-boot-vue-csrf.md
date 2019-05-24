@@ -222,6 +222,24 @@ proxy: ['http://192.168.2.144:8080/'], // 你的后端地址
 
 在开启前端，如果顺利的话应该不会再报错了。
 
+## nginx 代理
+
+既然使用代理能解决跨域和Session的问题，自然不能忘了 nginx。当然这样前端就必须使用 nginx 发布了，在 nginx 配置你的所有后端 api 都走代理就可以了。这样在访问者看来前后端是一体的，所以没有跨域和Session问题了。这也是一种解决方案。
+
+```nginx.conf
+server {
+  listen 80;
+  server_name localhost;
+  location / {
+      root /var/www/your-web-app/ # vue build 的 dist 目录里的内容
+      index index.html;
+  }
+
+  location /apis {
+  proxy_pass http://192.168.2.1:8080; # 后端地址
+}
+```
+
 ## 最后的思考
 
 这样是解决了跨域的问题和 Spring security session 的问题，有点强制整合的味道。但是这样做真的安全么？
