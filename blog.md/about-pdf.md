@@ -1,6 +1,6 @@
 # 关于 C++ 打印 PDF 打印及 PDF 转图片、合并
 
-原文: <http://www.aqcoder.com/post/content?id=42>
+原文: <http://www.aqcoder.com/post/42>
 
 pdf（Portable Document Format 的简称，意为“便携式文档格式”），是由 Adobe Systems 用于与应用程序、操作系统、硬件无关的方式进行文件交换所发展出的文件格式。PDF 文件以 PostScript 语言图象模型为基础，无论在哪种打印机上都可保证精确的颜色和准确的打印效果，即 PDF 会忠实地再现原稿的每一个字符、颜色以及图象。
 
@@ -140,7 +140,7 @@ bool PrintImage(const std::string& printer, const std::string& data) {
   // Begin a new print job
   BOOL bPrintingOK = dc.StartDoc(&di);
   // Get the printing extents
-  // and store in the m_rectDraw field of a 
+  // and store in the m_rectDraw field of a
   // CPrintInfo object
   CPrintInfo Info;
   // just one page
