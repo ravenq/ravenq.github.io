@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Building a Web Server in Go | Ravenq 的技术博客</title>
+    <meta name="description" content="Ravenq 的技术博客文章在Github的备份，博客请访问 http://www.aqcoder.com">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <script src="/baidu-tongji.js"></script>
+    
+    <link rel="preload" href="/assets/css/0.styles.3e1d0bd1.css" as="style"><link rel="preload" href="/assets/js/app.abf0aa37.js" as="script"><link rel="preload" href="/assets/js/37.125da3ec.js" as="script"><link rel="prefetch" href="/assets/js/10.04a127f9.js"><link rel="prefetch" href="/assets/js/11.f57d362f.js"><link rel="prefetch" href="/assets/js/12.b9f2d69c.js"><link rel="prefetch" href="/assets/js/13.35361639.js"><link rel="prefetch" href="/assets/js/14.6ab17b11.js"><link rel="prefetch" href="/assets/js/15.acb0fa69.js"><link rel="prefetch" href="/assets/js/16.32c92aa0.js"><link rel="prefetch" href="/assets/js/17.1aa8f29b.js"><link rel="prefetch" href="/assets/js/18.d87cd09d.js"><link rel="prefetch" href="/assets/js/19.d74ead15.js"><link rel="prefetch" href="/assets/js/2.81340e14.js"><link rel="prefetch" href="/assets/js/20.3a8af0fd.js"><link rel="prefetch" href="/assets/js/21.7f8ec8e4.js"><link rel="prefetch" href="/assets/js/22.96cc9f5c.js"><link rel="prefetch" href="/assets/js/23.b06791ba.js"><link rel="prefetch" href="/assets/js/24.319d9cbf.js"><link rel="prefetch" href="/assets/js/25.05870f73.js"><link rel="prefetch" href="/assets/js/26.d0617a05.js"><link rel="prefetch" href="/assets/js/27.ee315cd6.js"><link rel="prefetch" href="/assets/js/28.fea456b5.js"><link rel="prefetch" href="/assets/js/29.baabe7ad.js"><link rel="prefetch" href="/assets/js/3.a03553ca.js"><link rel="prefetch" href="/assets/js/30.e20507a9.js"><link rel="prefetch" href="/assets/js/31.81c1329c.js"><link rel="prefetch" href="/assets/js/32.f9323fdf.js"><link rel="prefetch" href="/assets/js/33.4e48c8b6.js"><link rel="prefetch" href="/assets/js/34.c805e02a.js"><link rel="prefetch" href="/assets/js/35.92e5376c.js"><link rel="prefetch" href="/assets/js/36.c850653d.js"><link rel="prefetch" href="/assets/js/38.969ae7bd.js"><link rel="prefetch" href="/assets/js/39.5becbd28.js"><link rel="prefetch" href="/assets/js/4.fd104560.js"><link rel="prefetch" href="/assets/js/40.55c3c7fc.js"><link rel="prefetch" href="/assets/js/41.9842fced.js"><link rel="prefetch" href="/assets/js/42.b3226976.js"><link rel="prefetch" href="/assets/js/43.11b6bfef.js"><link rel="prefetch" href="/assets/js/44.00821b26.js"><link rel="prefetch" href="/assets/js/45.130ce022.js"><link rel="prefetch" href="/assets/js/46.72ff4400.js"><link rel="prefetch" href="/assets/js/47.d0d8b682.js"><link rel="prefetch" href="/assets/js/5.855dc9b7.js"><link rel="prefetch" href="/assets/js/6.fa7c5cbc.js"><link rel="prefetch" href="/assets/js/7.99b3f4bb.js"><link rel="prefetch" href="/assets/js/8.8cdd939f.js"><link rel="prefetch" href="/assets/js/9.491360f4.js">
+    <link rel="stylesheet" href="/assets/css/0.styles.3e1d0bd1.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/" class="home-link router-link-active"><!----> <span class="site-name">Ravenq 的技术博客</span></a> <div class="links" style="max-width:nullpx;"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="http://www.aqcoder.com" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  博客
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></div><div class="nav-item"><div class="dropdown-wrapper"><a class="dropdown-title"><span class="title">开源项目</span> <span class="arrow right"></span></a> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="https://www.github.com/ravenq/markdown-it-vue" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  markdown-it-vue
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></li><li class="dropdown-item"><!----> <a href="https://www.github.com/ravenq/vue-cli-plugin-component-lib" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  vue-cli-plugin-component-lib
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></li><li class="dropdown-item"><h4>GVF Project</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="https://www.github.com/ravenq/gvf-server" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  gvf-server
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></li><li class="dropdown-subitem"><a href="https://www.github.com/ravenq/gvf-client" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  gvf-client
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></li><li class="dropdown-subitem"><a href="https://www.github.com/ravenq/gvf-admin" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  gvf-admin
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></li></ul></li></ul></div></div><div class="nav-item"><a href="https://www.github.com/ravenq" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  GitHub
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <div class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="http://www.aqcoder.com" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  博客
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></div><div class="nav-item"><div class="dropdown-wrapper"><a class="dropdown-title"><span class="title">开源项目</span> <span class="arrow right"></span></a> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="https://www.github.com/ravenq/markdown-it-vue" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  markdown-it-vue
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></li><li class="dropdown-item"><!----> <a href="https://www.github.com/ravenq/vue-cli-plugin-component-lib" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  vue-cli-plugin-component-lib
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></li><li class="dropdown-item"><h4>GVF Project</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="https://www.github.com/ravenq/gvf-server" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  gvf-server
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></li><li class="dropdown-subitem"><a href="https://www.github.com/ravenq/gvf-client" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  gvf-client
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></li><li class="dropdown-subitem"><a href="https://www.github.com/ravenq/gvf-admin" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  gvf-admin
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></li></ul></li></ul></div></div><div class="nav-item"><a href="https://www.github.com/ravenq" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  GitHub
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></div> <!----></nav>  <ul class="sidebar-links"><li><div class="sidebar-group first"><p class="sidebar-heading open"><span>Building a Web Server in Go</span> <!----></p> <ul class="sidebar-group-items"></ul></div></li></ul> </div> <div class="page"> <div class="content"><h1 id="building-a-web-server-in-go"><a href="#building-a-web-server-in-go" aria-hidden="true" class="header-anchor">#</a> Building a Web Server in Go</h1> <p>用GO来建立Web服务</p> <p>https://unknwon.io/posts/180913_building_a_web_server_in_go/</p> <p>Go (Golang.org) is the system programming language that provides standard HTTP protocol support in its standard library, which makes it easy for developers to build and get a web server running very quickly. Meanwhile, Go offers developers a lot of flexibility. In this post, we lay out several ways to build an HTTP web server in Go and then offer an analysis about how and why these different approaches all work perfectly in Go.
+GO是在文库里提供标准HTTP协议支持的程序级别编程语言，它使开发的创建变得更容易，使web服务发展的更快。同时GO的开发有很大的灵活性。在这篇文章中，我们用GO来讲述几个方法去创建HTTPweb服务，并且提供一个对于这些不同的代理方式用GO是怎么分析的。</p> <p>Before we get started, I assume you have basic knowledge about how to write Go code, you understand HTTP and know what a web server is. Then, we can begin with the famous “hello world” example in an HTTP web server version.
+在我们开始之前，我假设你有写GO代码的基本知识，你能理解HTTP并且知道WEB服务是什么，接着我们就能用著名的“你好，世界”这个例子在HTTP WEB服务版本上开始。</p> <p>It’s better to see the effect and then explain the detail. Create a file named http1.go and copy and paste the following code into the file:
+它能更好的看到效果和说明细节，创造一个文档命名http1，剪切，复制，粘帖下面的代码到文档里面。</p> <div class="language- extra-class"><pre class="language-text"><code>package main
+
+import (
+	&quot;io&quot;
+	&quot;net/http&quot;
+)
+
+func hello(w http.ResponseWriter, r *http.Request) {
+	io.WriteString(w, &quot;Hello world!&quot;)
+}
+
+func main() {
+	http.HandleFunc(&quot;/&quot;, hello)
+	http.ListenAndServe(&quot;:8000&quot;, nil)
+}
+</code></pre></div><p>In the terminal, execute the command go run http1.go, then open the browser and visit http://localhost:8000. You will seeHello world! is showing on your screen.
+在终端，</p> <p>How did that happen? Well, any runnable package must be named main in Go, and here we have the main function and a hello function.</p> <p>In the main function, we called the function http.HandleFunc from the package net/http to register another function to be the handle function, which is the hello function in this case. This function accepts two arguments. The first one is a string type pattern, which is the route you want to match and it’s the root path in the example. The second argument is a function with the signature func(ResponseWriter, *Request)(https://gowalker.org/net/http#HandleFunc). As you can see, our hello function has exactly the same signature, therefore we can pass it as the argument. The next line we called the http.ListenAndServe(“:8000”, nil) function to listen on localhost with port 8000. Ignore the nil argument just for now.</p> <p>In the hello function, we have two arguments. One with type http.ResponseWriter and its corresponding response stream, which is actually an interface type. The second is *http.Request and its corresponding HTTP request. We don’t have to use all the arguments. Just like in the hello function, if we want the response string Hello world! in the browser, then we only use http.ResponseWriter. io.WriteString is a helper function to let you write a string into a given writable stream. In Go, we call it the io.Writer interface. It’s not the point here, so knowing it works for us is enough.</p> <p>This example is a little bit more complicated:</p> <div class="language- extra-class"><pre class="language-text"><code>package main
+
+import (
+	&quot;io&quot;
+	&quot;net/http&quot;
+)
+
+func hello(w http.ResponseWriter, r *http.Request) {
+	io.WriteString(w, &quot;Hello world!&quot;)
+}
+
+func main() {
+	mux := http.NewServeMux()
+	mux.HandleFunc(&quot;/&quot;, hello)
+	http.ListenAndServe(&quot;:8000&quot;, mux)
+}
+</code></pre></div><p>In the example above, we don’t use the nil in function http.ListenAndServe any more. Instead, replace it with a variable with type *ServeMux. As you may guess, this example does exactly the same thing as the previous example but we use the variable mux to register the handle function instead of directly registering from the net/http package. What’s going on underneath? Well, the reason you can directly register the handle function in the package level is because net/http has a default *ServeMux inside the package, where now we defined our own.</p> <p>To make the example even more complicated, see the code below:</p> <div class="language- extra-class"><pre class="language-text"><code>package main
+
+import (
+	&quot;io&quot;
+	&quot;net/http&quot;
+)
+
+func hello(w http.ResponseWriter, r *http.Request) {
+	io.WriteString(w, &quot;Hello world!&quot;)
+}
+
+var mux map[string]func(http.ResponseWriter, *http.Request)
+
+func main() {
+	server := http.Server{
+		Addr:    &quot;:8000&quot;,
+		Handler: &amp;myHandler{},
+	}
+
+	mux = make(map[string]func(http.ResponseWriter, *http.Request))
+	mux[&quot;/&quot;] = hello
+
+	server.ListenAndServe()
+}
+
+type myHandler struct{}
+
+func (*myHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if h, ok := mux[r.URL.String()]; ok {
+		h(w, r)
+		return
+	}
+
+	io.WriteString(w, &quot;My server: &quot;+r.URL.String())
+}
+</code></pre></div><p>To confirm your guess, this time we’re doing the same thing again, which is showing the Hello world! string on the screen. However, we not only define the *ServeMux, but also the variable server with type http.Server. At this point, you should know why we are able to run and serve the HTTP server directly from the net/http package. Yes, it has a default server inside the package as well. A new thing we see here is the type myHandler we defined and its method ServeHTTP. How is it possible to define a custom type and use it in an unmodified function from a standard library in a static programming language? The truth is simple. The Handler is an interface and only required to implement one method whose signature is func(w http.ResponseWriter, r *http.Request)(https://gowalker.org/net/http#Handler) and must be named as ServeHTTP. The type myHandler has the method that the interface expects, so we are good.</p> <p>You can see how our code changed but for the same purpose. Don’t forget to try the three examples yourself, then make some changes and see how the change behaves. Hope you enjoy!</p></div> <div class="page-edit"><!----> <!----></div> <!----> </div> <!----></div></div>
+    <script src="/assets/js/app.abf0aa37.js" defer></script><script src="/assets/js/37.125da3ec.js" defer></script>
+  </body>
+</html>
