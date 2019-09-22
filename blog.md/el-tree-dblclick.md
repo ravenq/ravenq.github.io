@@ -1,5 +1,7 @@
 # 为 elment-ui 的 tree 加上双击事件
 
+原文: <https://ravenq.github.io/blog.md/el-tree-dblclick.html>
+
 目前 element-ui 的 tree 控件不支持双击事件，在后台管理系统时经常需要双击事件。
 
 如果在 element-ui 源码上直接添加双击事件是很简单的，我已经在 github 上提交了 issue: [#17448](https://github.com/ElemeFE/element/issues/17488) 和 [PR](https://github.com/ElemeFE/element/pull/17499)。
@@ -90,3 +92,4 @@ export default {
 }
 </script>
 ```
+![ravenq](https://ravenq-1251588610.cos.ap-guangzhou.myqcloud.com/ravenq-qr-gray.png)
