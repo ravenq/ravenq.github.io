@@ -1,4 +1,6 @@
-# 谈谈 IoC 的本质
+# 谈谈 IoC 的本质及 Spring 框架的一些理解
+
+原文： <http://www.aqcoder.com/post/45>
 
 Spring 有两大特性：控制反转（Inversion of Control，缩写为 IoC）和面向切面编程（Aspect Oriented Programming，缩写 AOP）。
 
@@ -12,7 +14,7 @@ Spring 有两大特性：控制反转（Inversion of Control，缩写为 IoC）�
 
 我们先来看一下一个 IoC 的一个简单实现，更好的理解一下概念。
 
-假设A公司设计了一个 Car 的类，但是A公司只负责装配汽车，但是不负责生产轮子、发动机这些具体的配件。A公司同时和多家生产配件的公司合作，先有B、C两家公司都只生产轮子，A公司为了能同时使用 B、C 两家公司生产的轮子，指定了轮子的接口规则：
+假设 A 公司设计了一个 Car 的类，但是 A 公司只负责装配汽车，但是不负责生产轮子、发动机这些具体的配件。A 公司同时和多家生产配件的公司合作，先有 B、C 两家公司都只生产轮子，A 公司为了能同时使用 B、C 两家公司生产的轮子，指定了轮子的接口规则：
 
 ```java
 public class IWheel {
@@ -46,7 +48,7 @@ public class Car {
 }
 ```
 
-上面一段代码看起来挺完美的，达到了解耦的目的，也达到了封装的目的，汽车厂商根本不需要轮子厂商是怎么驱动轮子的，只管调用自家发布的标准接口 IWheel 的 ```run```方法就好了。
+上面一段代码看起来挺完美的，达到了解耦的目的，也达到了封装的目的，汽车厂商根本不需要轮子厂商是怎么驱动轮子的，只管调用自家发布的标准接口 IWheel 的 `run`方法就好了。
 
 可是汽车还要实例化，下面的代码就又耦合了：
 
@@ -97,7 +99,7 @@ public class Application {
 
 更糟糕的是，每个轮子（配件）的厂商生产的轮子可能有自己独有的参数设置，这样汽车厂商的代码会乱成一团。
 
-[ioc-car](https://ravenq-1251588610.cos.ap-guangzhou.myqcloud.com/ioc-car.png)
+![ioc-car](https://ravenq-1251588610.cos.ap-guangzhou.myqcloud.com/ioc-car.png)
 
 那么有了 Spring 这样的框架以后会出现什么情况呢。
 
@@ -123,23 +125,23 @@ public class Car {
 </bean>
 ```
 
-到这一步发现，Spring框架帮我们硬编码入侵的部分，转变了 xml 配置的部分。替换 C 厂家的轮子时，只要替换这个 XML 配置文件就可了。
+到这一步发现，Spring 框架帮我们硬编码入侵的部分，转变了 xml 配置的部分。替换 C 厂家的轮子时，只要替换这个 XML 配置文件就可了。
 
 看起来似乎很完美，细心的你会发现这样只是把耦合部分变成了配置而且，当系统庞大以后，这个配置文件会越来越庞大，越来越复杂，越来越难以维护。
 
-的确，这样看起来似乎没有完全解耦，因为这个配置文件还是由汽车厂商（A厂商）维护的，但是把这部分配置抽离出来有个本质的区别：**没有代码入侵**。
+的确，这样看起来似乎没有完全解耦，因为这个配置文件还是由汽车厂商（A 厂商）维护的，但是把这部分配置抽离出来有个本质的区别：**没有代码入侵**。
 
-汽车厂商的java代码中不在包含轮子厂商B的代码，所有的配置都抽离到了 xml 文件中。
+汽车厂商的 java 代码中不在包含轮子厂商 B 的代码，所有的配置都抽离到了 xml 文件中。
 
-[ioc-car-spring](https://ravenq-1251588610.cos.ap-guangzhou.myqcloud.com/ioc-car-spring.png)
+![ioc-car-spring](https://ravenq-1251588610.cos.ap-guangzhou.myqcloud.com/ioc-car-spring.png)
 
-随着轮子厂商的功能不多增多，xml 配置文件越来越复杂，因此有了  SpringBoot。
+随着轮子厂商的功能不多增多，xml 配置文件越来越复杂，因此有了 SpringBoot。
 
 SpringBoot 的各种 starter 插件，承当了配置文件的工作，毕竟自家生产的组件，有什么配置自己最清楚。因此整个工程结构关系变成了这样。
 
-[ioc-car-spring-boot](https://ravenq-1251588610.cos.ap-guangzhou.myqcloud.com/ioc-car-spring-boot.png)
+![ioc-car-spring-boot](https://ravenq-1251588610.cos.ap-guangzhou.myqcloud.com/ioc-car-spring-boot.png)
 
-到这步我们惊奇的发现，借助Spring框架，我们彻底的解耦了。汽车厂商只要发布各个配件的标准接口，引用配件厂商的 starter 工程包，就可以了完成组装工作了。
+到这步我们惊奇的发现，借助 Spring 框架，我们彻底的解耦了。汽车厂商只要发布各个配件的标准接口，引用配件厂商的 starter 工程包，就可以了完成组装工作了。
 
 映射到我们平时使用的代码中，发现就是如此：
 
@@ -150,4 +152,6 @@ SpringBoot 的各种 starter 插件，承当了配置文件的工作，毕竟自
 
 ## 结论
 
-IOC 的本质就是为了解耦。整个Spring框架最伟大的地方也是 **解耦**。解耦对大型软件工程的架构设计是至关重要的，解耦能使软件架构清晰，使个组件生产者能够专注于自己的内部实现逻辑，使个组件能够方便的灵活组装搭配。
+IOC 的本质就是为了解耦。整个 Spring 框架最伟大的地方也是 **解耦**。解耦对大型软件工程的架构设计是至关重要的，解耦能使软件架构清晰，使个组件生产者能够专注于自己的内部实现逻辑，使个组件能够方便的灵活组装搭配。
+
+![ravenq](https://ravenq-1251588610.cos.ap-guangzhou.myqcloud.com/ravenq-qr-gray.png)
