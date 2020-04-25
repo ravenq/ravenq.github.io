@@ -1,5 +1,7 @@
 # Gitlab Merge Request 按钮不见了
 
+原文：http://www.aqcoder.com/post/46
+
 ## 起因
 
 因为一些原因执行了 Gitlab 恢复备份命令：
@@ -190,3 +192,5 @@ cd /var/opt/gitlab/git-data/repositories/repo5.git && mv hooks hooks.old && ln -
 ```
 
 复制执行就好了。注意切换到 git 用户哦~
+
+![ravenq](https://ravenq-1251588610.cos.ap-guangzhou.myqcloud.com/ravenq-qr-gray.png)
