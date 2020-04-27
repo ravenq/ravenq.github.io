@@ -3,6 +3,7 @@ sidebar: false
 ---
 
 <!-- markdownlint-disable MD041 -->
+- [几个动图带你理解常用 Git 命令](blog.md/git-cli.md)
 - [Gitlab Merge Request 按钮不见了](blog.md/gitlab-merge-request.md)
 - [谈谈 IoC 的本质及 Spring 框架的一些理解](blog.md/ioc.md)
 - [为 elment-ui 的 tree 加上双击事件](blog.md/el-tree-dblclick.md)
