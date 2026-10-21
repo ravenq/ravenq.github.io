@@ -1,24 +1,23 @@
 {
   "name": "ravenq.github.io",
-  "version": "1.0.0",
-  "description": "",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Ravenq 的技术博客（GitHub Pages 备份）",
+  "type": "module",
   "scripts": {
-    "dev": "vuepress dev",
-    "build": "vuepress build",
-    "dist": "gulp"
+    "dev": "vitepress dev docs",
+    "build": "vitepress build docs",
+    "preview": "vitepress preview docs"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ravenq/ravenq.github.io.git"
   },
-  "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/ravenq/ravenq.github.io/issues"
+  "engines": {
+    "node": ">=18"
   },
-  "homepage": "https://github.com/ravenq/ravenq.github.io#readme",
   "devDependencies": {
-    "gulp": "^4.0.1",
-    "vuepress": "^0.14.11"
+    "vitepress": "^1.6.4"
   }
 }

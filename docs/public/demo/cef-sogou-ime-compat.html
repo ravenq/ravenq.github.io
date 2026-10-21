@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>搜狗 IME 兼容层验证：contenteditable vs canvas(EditContext)</title>
+<style>
+  body { font-family: system-ui, "Microsoft YaHei", sans-serif; margin: 0; background: #f5f6f8; color: #222; }
+  header { padding: 12px 16px; background: #fff; border-bottom: 1px solid #e0e0e0; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  header h1 { font-size: 15px; margin: 0; font-weight: 600; }
+  #env { width: 100%; font-size: 13px; color: #333; font-weight: 400; }
+  #env b { font-weight: 700; }
+  #env.bad { color: #b71c1c; }
+  main { max-width: 860px; margin: 14px auto; padding: 0 12px; }
+  section { background: #fff; border: 1px solid #d0d3d8; border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }
+  section h2 { font-size: 14px; margin: 0 0 4px; display: flex; align-items: center; gap: 10px; }
+  section .sub { font-size: 12px; color: #777; margin: 0 0 10px; }
+  .badge { font-size: 12px; padding: 2px 10px; border-radius: 20px; background: #eee; color: #888; font-weight: 400; }
+  .badge.normal { background: #e6f7e6; color: #1a7f37; font-weight: 600; }
+  .badge.degraded { background: #fde3ec; color: #c2185b; font-weight: 600; }
+  #ce { min-height: 72px; border: 1px solid #d0d3d8; border-radius: 8px; padding: 10px 12px; font-size: 18px; outline: none; background: #fff; }
+  #ce:focus { border-color: #4a90d9; box-shadow: 0 0 0 2px rgba(74,144,217,.2); }
+  #ce:empty::before { content: "点击此处（contenteditable），然后用搜狗输入法打字"; color: #aaa; }
+  #cv { display: block; width: 100%; height: 110px; background: #fff; border: 1px solid #d0d3d8; border-radius: 8px; outline: none; cursor: text; }
+  #cv:focus { border-color: #4a90d9; box-shadow: 0 0 0 2px rgba(74,144,217,.2); }
+  .disabled { opacity: .45; pointer-events: none; }
+  .ecNote { display: none; font-size: 12px; color: #b71c1c; margin: 6px 0 0; }
+  .toolbar { margin: 10px 0 0; display: flex; gap: 8px; }
+  .toolbar button { font-size: 12px; padding: 5px 14px; border: 1px solid #c8ccd2; background: #fff; border-radius: 6px; cursor: pointer; }
+  .toolbar button:hover { background: #f0f2f5; }
+  #log { background: #fff; border: 1px solid #d0d3d8; border-radius: 8px; padding: 10px 12px; height: 300px; overflow-y: auto; font: 12px/1.7 Consolas, monospace; }
+  .row { white-space: pre-wrap; word-break: break-all; border-bottom: 1px dashed #f0f0f0; padding: 1px 0; }
+  .row .src { display: inline-block; min-width: 34px; font-weight: 700; }
+  .src-ce { color: #0b69a3; } .src-ec { color: #7a4fa3; } .src-sys { color: #888; }
+  .row .ev { display: inline-block; min-width: 148px; font-weight: 600; }
+  .r-comp { color: #1a7f37; }
+  .r-upd  { color: #667; }
+  .r-cb   { color: #999; }
+  .r-commit { color: #c2185b; font-weight: 700; background: #fde3ec; }
+  .r-info { color: #888; }
+  .note { font-size: 12px; color: #777; }
+  .note b { color: #444; }
+</style>
+</head>
+<body>
+<header>
+  <h1>搜狗 IME 兼容层验证（双示例对照）</h1>
+  <span class="note">contenteditable 任意内核可用；canvas(EditContext) 需 Chromium 121+，updateType 需 131+</span>
+  <div id="env">检测中…</div>
+</header>
+<main>
+
+  <!-- 示例 A：contenteditable -->
+  <section id="secA">
+    <h2>示例 A：contenteditable（传统 DOM 事件，任意内核） <span id="badgeA" class="badge">未检测</span>
+      <label style="font-size:12px;font-weight:400;margin-left:auto"><input type="checkbox" id="ckIntercept"> 拦截模式（编辑器自管：手动写入）</label>
+    </h2>
+    <p class="sub">兼容层：compositionstart/update/end + beforeinput(inputType) 原子提交识别</p>
+    <div id="ce" contenteditable="true" spellcheck="false"></div>
+  </section>
+
+  <!-- 示例 B：canvas + EditContext -->
+  <section id="secB">
+    <h2>示例 B：canvas + EditContext（新一代编辑器接口，Chromium 121+） <span id="badgeB" class="badge">未检测</span></h2>
+    <p class="sub">兼容层：compositionstart/end + textupdate(updateType) 原子提交识别；canvas 自绘文本/光标/下划线</p>
+    <canvas id="cv" tabindex="0"></canvas>
+    <p class="ecNote" id="ecNote">✘ 当前内核不支持 EditContext，本示例停用（示例 A 仍可用）。</p>
+  </section>
+
+  <!-- 共享日志 -->
+  <section>
+    <h2>共享事件日志 <span class="badge">CE=contenteditable　EC=canvas　SYS=系统</span></h2>
+    <div class="toolbar">
+      <button id="btnClearLog">清空日志</button>
+      <button id="btnClearTextA">清空 A 文本</button>
+      <button id="btnClearTextB">清空 B 文本</button>
+    </div>
+    <div id="log"></div>
+    <p class="note" style="margin-top:8px">
+      <b>预期结果（每个示例独立判定）：</b><br>
+      ① Chrome/Edge + 搜狗（对照）：绿字 composition 三连 → 粉色 onCommit(degraded=false)；A 内联拼音，B 画布内联下划线。<br>
+      ② CEF 121+ + 搜狗（重点）：无 composition 事件 → 粉色 onCommit(degraded=true)，徽标变红。<br>
+      ③ 若 CEF 121+ 里 keydown 都收不到 → 搜狗钩子在按键进页面前已吞掉；keydown 有但 textupdate 无 → EditContext 管道问题。<br>
+      ④ 93 等旧内核：示例 B 灰显，仅示例 A 可测（A 在 93 上即可复现降级现象）。<br>
+      ⑤ <b>模式判定是动态的</b>：搜狗打字 → 徽标红；切到微软拼音，组合事件一到立即变绿；再切回搜狗 → 变红。无需刷新页面。日志中每次翻转都有"模式切换"记录。
+    </p>
+  </section>
+</main>
+
+<script>
+"use strict";
+/* ============ 共享工具 ============ */
+const isCJK = s => !!s && /[\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF\u3000-\u303F\uFF00-\uFFEF]/.test(s);
+
+const $log = document.getElementById('log');
+function log(src, cls, ev, detail) {
+  const d = document.createElement('div');
+  d.className = 'row ' + cls;
+  const t = new Date().toLocaleTimeString('zh-CN', { hour12: false });
+  d.innerHTML = `<span class="src src-${src}">${src.toUpperCase()}</span><span class="ev">[${t}] ${ev}</span>${detail ?? ''}`;
+  $log.prepend(d);
+  while ($log.children.length > 300) $log.lastChild.remove();
+}
+function setBadge(id, mode) {
+  const el = document.getElementById(id);
+  el.textContent = mode === 'normal' ? '正常模式（当前输入法有组合事件）'
+                 : mode === 'degraded' ? '降级模式（当前输入法：文档外组合）' : '未检测';
+  el.className = 'badge ' + (mode === 'normal' ? 'normal' : mode === 'degraded' ? 'degraded' : '');
+}
+function onCommit(src, committedText, meta) {
+  log(src, 'r-commit', 'onCommit ★', `"${committedText}"  degraded=${meta.degraded}  type=${meta.type || '-'}`);
+  // 业务侧：在这里把 committedText 作为一次原子提交写入编辑器数据模型
+}
+
+/* 环境自检 */
+(function () {
+  const m = navigator.userAgent.match(/Chrome\/(\d+)/);
+  const chromeVer = m ? +m[1] : 0;
+  const hasEC = 'EditContext' in window;
+  const $env = document.getElementById('env');
+  $env.innerHTML = `Chromium 内核: <b>${chromeVer || '未知'}</b>　|　EditContext: <b>${hasEC ? '✔ 支持' : '✘ 不支持（示例 B 停用）'}</b>　|　页面聚焦: <b id="focState">${document.hasFocus() ? '是' : '否'}</b>`;
+  if (!hasEC) $env.classList.add('bad');
+  log('sys', 'r-info', '环境', `Chromium=${chromeVer || '?'}  EditContext=${hasEC ? '有' : '无'}`);
+  setInterval(() => { const f = document.getElementById('focState'); if (f) f.textContent = document.hasFocus() ? '是' : '否'; }, 500);
+})();
+
+/* keydown 诊断（捕获阶段）：区分"按键没到页面"与"到了但管道死了" */
+window.addEventListener('keydown', e => {
+  if (['Shift', 'Control', 'Alt'].includes(e.key)) return;
+  const tag = document.activeElement?.id || document.activeElement?.tagName || '?';
+  log('sys', 'r-upd', 'keydown', `key="${e.key}" code=${e.code} isComposing=${e.isComposing} target=${tag}`);
+}, true);
+
+/* ============ 示例 A：contenteditable 兼容层 ============ */
+const ckIntercept = document.getElementById('ckIntercept');
+function insertAtCaret(el, str) {
+  const sel = getSelection();
+  if (!sel.rangeCount) return;
+  const r = sel.getRangeAt(0);
+  r.deleteContents();
+  r.insertNode(document.createTextNode(str));
+  r.collapse(false);
+  sel.removeAllRanges(); sel.addRange(r);
+}
+function ImeCompat(el, badgeId, src) {
+  let composing = false, lastMode = null;   // composing = 真组合进行中（compositionstart..end）
+  const setMode = m => {
+    if (m === lastMode) return;
+    log(src, 'r-info', '模式切换', `${lastMode ?? '未检测'} → ${m === 'normal' ? '正常（收到组合事件）' : '降级（无组合的 CJK 原子插入）'}`);
+    lastMode = m; setBadge(badgeId, m);
+  };
+  const H = {
+    onStart:  () => log(src, 'r-comp', 'compositionstart', '（真·组合事件）'),
+    onUpdate: d  => log(src, 'r-comp', 'compositionupdate', `"${d.data ?? d}"`),
+    onEnd:    d  => { log(src, 'r-comp', 'compositionend', `"${d.data ?? ''}"`); if (d.data) onCommit(src, d.data, { degraded: false, type: 'compositionend' }); },
+    onCommit: (t, meta) => onCommit(src, t, meta),
+  };
+  el.addEventListener('compositionstart', () => {
+    composing = true; setMode('normal');
+    H.onStart();
+  });
+  el.addEventListener('compositionupdate', e => H.onUpdate(e));
+  el.addEventListener('compositionend', e => { composing = false; H.onEnd(e); });
+  el.addEventListener('beforeinput', e => {
+    if (composing) return;                                         // 组合进行中：一切交给 composition 事件
+    if (e.inputType !== 'insertText' || !isCJK(e.data)) return;    // 仅识别非组合期的 CJK 原子插入
+    setMode('degraded');
+    if (ckIntercept.checked) {
+      e.preventDefault();                                          // 编辑器自管：拦下默认插入，手动写入
+      insertAtCaret(el, e.data);
+      log(src, 'r-info', 'intercept', '已拦截默认插入，手动写入文本');
+    }
+    H.onCommit(e.data, { degraded: true, type: e.inputType, nativeEvent: e });
+  });
+  el.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); log(src, 'r-info', 'Enter', '已拦截（演示页不换行）'); } });
+}
+
+const ce = document.getElementById('ce');
+ImeCompat(ce, 'badgeA', 'ce');
+
+/* ============ 示例 B：canvas + EditContext 兼容层 ============ */
+(function () {
+  const hasEC = 'EditContext' in window;
+  const cv = document.getElementById('cv');
+  if (!hasEC) {
+    cv.classList.add('disabled');
+    document.getElementById('ecNote').style.display = 'block';
+    return;
+  }
+
+  let text = '', selStart = 0, selEnd = 0;
+  let composing = false, compCooldownUntil = 0, lastMode = null;
+  let lastCompText = '', compRange = null, charLayout = [];
+  const setMode = m => {
+    if (m === lastMode) return;
+    log('ec', 'r-info', '模式切换', `${lastMode ?? '未检测'} → ${m === 'normal' ? '正常（收到组合事件）' : '降级（无组合的 CJK 原子提交）'}`);
+    lastMode = m; setBadge('badgeB', m);
+  };
+
+  const dpr = window.devicePixelRatio || 1;
+  function resize() { cv.width = cv.clientWidth * dpr; cv.height = cv.clientHeight * dpr; draw(); }
+  function draw() {
+    const ctx = cv.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, cv.clientWidth, cv.clientHeight);
+    ctx.font = '20px system-ui, "Microsoft YaHei"';
+    ctx.textBaseline = 'alphabetic';
+    const baseY = 70, x0 = 14;
+    charLayout = [];
+    let x = x0;
+    for (const ch of text) { const w = ctx.measureText(ch).width; charLayout.push({ ch, x, w }); x += w; }
+    ctx.fillStyle = '#222';
+    ctx.fillText(text, x0, baseY);
+    if (composing && compRange) {
+      const a = charLayout[compRange[0]], b = charLayout[Math.min(compRange[1], charLayout.length) - 1];
+      if (a && b) { ctx.strokeStyle = '#4a90d9'; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(a.x, baseY + 4); ctx.lineTo(b.x + b.w, baseY + 4); ctx.stroke(); }
+    }
+    if (document.activeElement === cv && Math.floor(Date.now() / 530) % 2 === 0) {
+      const g = charLayout[selStart];
+      const cx = g ? (selStart === selEnd ? g.x : g.x + g.w) : x0;
+      ctx.strokeStyle = '#222'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(cx, baseY - 20); ctx.lineTo(cx, baseY + 3); ctx.stroke();
+    }
+  }
+  setInterval(draw, 120);
+  window.addEventListener('resize', resize);
+
+  const ec = new EditContext();
+  cv.editContext = ec;
+
+  ec.addEventListener('compositionstart', () => {
+    composing = true; compRange = null; setMode('normal');
+    log('ec', 'r-comp', 'compositionstart', '（真·组合事件）');
+  });
+  ec.addEventListener('compositionend', () => {
+    composing = false; compCooldownUntil = Date.now() + 300; compRange = null;
+    log('ec', 'r-comp', 'compositionend', `committed≈"${lastCompText}"`);
+    if (lastCompText) onCommit('ec', lastCompText, { degraded: false, type: 'compositionend' });
+    lastCompText = '';
+  });
+  ec.addEventListener('textupdate', e => {
+    const t = e.updateText ?? '';
+    const type = e.updateType ?? '';
+    text = e.text ?? text;
+    selStart = e.selectionStart; selEnd = e.selectionEnd;
+
+    if (composing || type === 'insertCompositionText') {
+      lastCompText = t;                          // 组合中间态：记录，不提交
+      compRange = [e.updateRangeStart ?? 0, e.updateRangeEnd ?? 0];
+      log('ec', 'r-upd', `textupdate(${type || '-'})`, `update="${t}" range=[${compRange[0]},${compRange[1]})`);
+      draw(); return;
+    }
+    log('ec', 'r-upd', `textupdate(${type || '-'})`, `update="${t}"`);
+    // 非组合期的 CJK 插入 = 降级原子提交
+    // 冷却窗：compositionend 后 300ms 内不判定，避免把正常提交的落盘误判为降级
+    const inCooldown = Date.now() < compCooldownUntil;
+    if (isCJK(t) && (type === 'insertText' || (!type && !inCooldown))) {
+      setMode('degraded');
+      onCommit('ec', t, { degraded: true, type: type || '(no updateType)' });
+    }
+    draw();
+  });
+  ec.addEventListener('characterboundsupdate', e => {
+    const bounds = [];
+    for (let i = e.rangeStart; i < e.rangeEnd && i < charLayout.length; i++) {
+      const g = charLayout[i];
+      bounds.push(new DOMRect(g.x, 70 - 21, g.w, 26));
+    }
+    ec.updateCharacterBounds(e.rangeStart, bounds);
+    if (Math.random() < 0.15) log('ec', 'r-cb', 'characterboundsupdate', `range=[${e.rangeStart},${e.rangeEnd}) → ${bounds.length} rects`);
+  });
+  cv.addEventListener('click', () => { cv.focus(); ec.updateSelection(0, 0); });
+  cv.addEventListener('focus', () => log('ec', 'r-info', 'focus', '画布已聚焦'));
+
+  document.getElementById('btnClearTextB').onclick = () => {
+    text = ''; selStart = selEnd = 0; ec.updateText(0, ec.text.length, ''); draw();
+  };
+  resize();
+})();
+
+document.getElementById('btnClearLog').onclick = () => $log.innerHTML = '';
+document.getElementById('btnClearTextA').onclick = () => { ce.innerHTML = ''; ce.focus(); };
+log('sys', 'r-info', '就绪', '分别在两个输入区点击聚焦，用搜狗打字对比');
+</script>
+</body>
+</html>
