@@ -31,7 +31,7 @@ const posts: Post[] = fs
 export default defineConfig({
   lang: 'zh-CN',
   title: 'Ravenq 的技术博客',
-  description: 'Ravenq 的技术博客文章在 GitHub 的备份，博客请访问 http://www.aqcoder.com',
+  description: 'Ravenq 的技术博客',
   cleanUrls: true,
   head: [
     ['link', { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
@@ -42,10 +42,6 @@ export default defineConfig({
       '/blog/': [{ text: '全部文章', items: posts }]
     },
     nav: [
-      {
-        text: '博客',
-        link: 'http://www.aqcoder.com'
-      },
       {
         text: '开源项目',
         items: [
