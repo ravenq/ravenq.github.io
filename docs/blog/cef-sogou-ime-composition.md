@@ -183,31 +183,56 @@ composition 事件不是输入法"发送"的消息。输入法没有任何直通
 
 代价则由生态里的长尾承担：你的 CEF 应用、我的 Tauri 应用，都在"未知进程"之列。
 
-## 08 两个最小验证 Demo
+## 08 三个最小验证 Demo
 
 纸上得来终觉浅。我准备了一个可以直接打开的验证页面：
 
 **<https://ravenq.github.io/demo/cef-sogou-ime-compat.html>**
 
-页面里并排放了两个最小编辑器，各自独立判定模式，共享一份事件日志：
+页面里并排放了三个最小编辑器，各自独立判定模式，共享一份事件日志：
 
-| 示例 | 实现 | 内核要求 |
-| --- | --- | --- |
-| A | `contenteditable` + DOM 事件 | 任意内核 |
-| B | `canvas` + `EditContext`（新一代编辑器组合接口） | Chromium 121+ |
+| 示例 | 实现 | 内核要求 | 定位 |
+| --- | --- | --- | --- |
+| A | `contenteditable` + DOM 事件 | 任意内核 | 推荐 |
+| B | `canvas` + `EditContext`（新一代编辑器组合接口） | Chromium 121+ | 对照：实测不可靠 |
+| C | `canvas` 渲染 + 透明 `contenteditable` 输入层 | 任意内核 | canvas 编辑器的正解 |
 
 页面顶部会实时显示当前内核版本和 `EditContext` 支持情况。预期结果：
 
-| 环境 | 示例 A | 示例 B |
-| --- | --- | --- |
-| Chrome / Edge + 搜狗 | 正常：composition 三连 | 正常：`compositionstart/end` + 多个中间态 `textupdate` |
-| CEF / WebView2 + 搜狗 | 降级：一个 CJK 的 `insertText` | 降级：一个 CJK 的 `textupdate` |
-| CEF 93 等旧内核 | 可测 | 自动灰显（`EditContext` 不存在） |
+| 环境 | 示例 A | 示例 B | 示例 C |
+| --- | --- | --- | --- |
+| Chrome / Edge + 搜狗 | 正常：composition 三连 | 正常：`compositionstart/end` + 中间态 `textupdate` | 正常：同 A |
+| CEF / WebView2 + 搜狗 | 降级：一个 CJK 的 `insertText` | **不可靠**：`textupdate` 漏发，或携带已输入的旧字符 | 降级：一个 CJK 的 `insertText` |
+| CEF 93 等旧内核 | 可测 | 自动灰显（`EditContext` 不存在） | 可测 |
 
-两个实测踩出来的坑，能帮你少走弯路：
+三个实测踩出来的坑，能帮你少走弯路：
 
 - **别用 93 内核测示例 B。** `EditContext` 是 Chromium 121 才加入的，93 上画布根本没有可编辑后端，打字零反应——不是兼容层失败。
 - **如果在示例 A 里勾选"拦截模式"却没手动写回文本，字会消失。** 字被吞反而是好消息：它证明搜狗的一次性提交确实以 `beforeinput(insertText)` 到达了页面，只是被 `preventDefault()` 拦下后没人负责落笔。
+- **示例 B 是真的不可靠，不是参数没调对。** 这是本轮最意外的发现，值得单独说明。
+
+### 为什么 EditContext 接不住搜狗
+
+`EditContext` 的模型是：文本缓冲区交给 Chromium 托管，页面只负责渲染，`textupdate` 是"缓冲区变了"的通知。看起来最适合 canvas 编辑器——但它和搜狗降级提交之间是**管道语义错位**：
+
+- `textupdate` **会漏发**。同类操作在 Chromium 内部被合并/节流时，通知就不来了；
+- 触发时，`updateText` 常常是**一次整段重写**——里面带着此前已经输入的字符，而不是本次提交的那几个字。
+
+这不是 JS 层能修补的 bug。降级模式下搜狗做的是"整段替换"，而 `EditContext` 的 update range 语义是按区间增量设计的，两者对不上；再怎么包 try/catch、加冷却窗，语义都不稳定。
+
+文章最初版本给的 `textupdate` 适配代码，实测就是要收回的：**它在 Chrome 里能跑，在 CEF + 搜狗的降级模式下不可靠。**
+
+### canvas 编辑器的正解：透明输入层
+
+canvas 编辑器不需要把输入也交给 canvas。业界方案（Monaco、CodeMirror、ProseMirror）一直是同一个结构：
+
+```
+透明 contenteditable（真实 DOM，负责接收输入、提供光标）
+        ↑ 覆盖在上面
+canvas / 自绘层（只负责渲染文字）
+```
+
+这样 `beforeinput` 依然稳定触发，`data` 恰好是本次提交的文本；canvas 只从 DOM 的文本重绘即可。页面的示例 C 就是这个结构，可以直接跑。
 
 另外，页面的模式判定是**动态**的：搜狗打字时徽标变红；切到微软拼音，`compositionstart` 一到立刻变绿；再切回搜狗又变红，全程不用刷新。
 
@@ -256,45 +281,44 @@ function attachImeCompat(el, h, opts = {}) {
 }
 ```
 
-canvas 自绘编辑器如果用的是新一代 `EditContext`，事件模型不一样，需要单独适配：
+canvas 渲染的编辑器，不要用 `EditContext` 承接输入（原因见上一节），用**透明输入层**：
+
+```html
+<div class="editor">
+  <canvas id="render"></canvas>
+  <div id="ime-input" contenteditable="true" spellcheck="false"></div>
+</div>
+```
+
+```css
+.editor { position: relative; }
+.editor canvas { display: block; width: 100%; height: 100%; }
+.editor #ime-input {
+  position: absolute; inset: 0; padding: 12px 14px;
+  font: 20px/1.6 system-ui, "Microsoft YaHei";
+  color: transparent;            /* 文字不可见：交给 canvas 画 */
+  caret-color: #222;             /* 光标保留，用户能看到插入点 */
+  background: transparent; outline: none;
+  white-space: pre-wrap; overflow: hidden;
+}
+```
 
 ```javascript
-function attachEditContextCompat(ec, h) {
-  let composing = false, cooldownUntil = 0, lastText = '';
+const input = document.getElementById('ime-input');
 
-  ec.addEventListener('compositionstart', () => {
-    composing = true;
-    h.onModeChange && h.onModeChange('normal');
-    h.onStart && h.onStart();
-  });
-  ec.addEventListener('compositionend', () => {
-    composing = false;
-    cooldownUntil = Date.now() + 300;        // 正常模式的落盘紧随其后，别误判成降级
-    h.onEnd && h.onEnd();
-    if (lastText) h.onCommit && h.onCommit(lastText, { degraded: false, type: 'compositionend' });
-    lastText = '';
-  });
-  ec.addEventListener('textupdate', e => {
-    const t = e.updateText ?? '';
-    if (composing || e.updateType === 'insertCompositionText') { lastText = t; return; }
-    if (!isCJK(t)) return;
-    if (Date.now() < cooldownUntil) return;  // 刚结束组合，这条是正常提交的落盘
-    h.onModeChange && h.onModeChange('degraded');
-    h.onCommit && h.onCommit(t, { degraded: true, type: e.updateType || '(none)' });
-  });
+attachImeCompat(input, {
+  onModeChange(mode) { /* 可据此提示"当前输入法处于降级模式" */ },
+  onCommit(text, { degraded }) { /* 写入编辑器模型，再重绘 canvas */ },
+});
 
-  // 记得实现 characterboundsupdate，否则候选框定位会错
-  ec.addEventListener('characterboundsupdate', e => {
-    const rects = computeCharRects(e.rangeStart, e.rangeEnd);
-    ec.updateCharacterBounds(e.rangeStart, rects);
-  });
-}
+// 渲染永远从 DOM 的真实文本出发，兼容层只负责"感知提交"
+input.addEventListener('input', () => renderToCanvas(input.innerText));
 ```
 
 两个细节值得单独说：
 
-- **`updateType` 需要 Chromium 131+**。旧内核拿不到这个字段时，上面的 `composing` 标志和 300ms 冷却窗就是兜底；
-- **`intercept: true` 只给自管数据模型的编辑器**（ProseMirror / Lexical / 自研模型类）。原生 contenteditable 请放行默认插入，否则就会遇到前面说的"字被吞"。
+- **`intercept: true` 只给自管数据模型的编辑器**（ProseMirror / Lexical / 自研模型类）。透明输入层必须放行默认插入，否则就会遇到前面说的"字被吞"；
+- **输入层与 canvas 的字体、行高、内边距必须一致**，否则光标和绘制文字会错位；字号用固定值而不是 `rem`，能省掉不少缩放的坑。
 
 也要诚实地讲清能力边界：**拼音中间态救不回来**——降级模式下预编辑文本不进 DOM，任何 JS 都拿不到，"边打拼音边联想"在这个环境里就是不存在的；提交发生前，你也无法区分"用户在打拼音"和"用户在敲英文"。兜底方案的目标不是复刻正常模式，而是**让核心功能在任何输入法下都可用**。
 

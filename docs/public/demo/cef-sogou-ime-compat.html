@@ -30,7 +30,7 @@
   #log { background: #fff; border: 1px solid #d0d3d8; border-radius: 8px; padding: 10px 12px; height: 300px; overflow-y: auto; font: 12px/1.7 Consolas, monospace; }
   .row { white-space: pre-wrap; word-break: break-all; border-bottom: 1px dashed #f0f0f0; padding: 1px 0; }
   .row .src { display: inline-block; min-width: 34px; font-weight: 700; }
-  .src-ce { color: #0b69a3; } .src-ec { color: #7a4fa3; } .src-sys { color: #888; }
+  .src-ce { color: #0b69a3; } .src-cec { color: #0b69a3; } .src-ec { color: #7a4fa3; } .src-sys { color: #888; }
   .row .ev { display: inline-block; min-width: 148px; font-weight: 600; }
   .r-comp { color: #1a7f37; }
   .r-upd  { color: #667; }
@@ -43,8 +43,8 @@
 </head>
 <body>
 <header>
-  <h1>搜狗 IME 兼容层验证（双示例对照）</h1>
-  <span class="note">contenteditable 任意内核可用；canvas(EditContext) 需 Chromium 121+，updateType 需 131+</span>
+  <h1>搜狗 IME 兼容层验证（三示例对照）</h1>
+  <span class="note">A=contenteditable（可靠）　B=EditContext（对照：不可靠）　C=canvas 渲染 + 透明输入层（canvas 编辑器的正解）</span>
   <div id="env">检测中…</div>
 </header>
 <main>
@@ -60,28 +60,40 @@
 
   <!-- 示例 B：canvas + EditContext -->
   <section id="secB">
-    <h2>示例 B：canvas + EditContext（新一代编辑器接口，Chromium 121+） <span id="badgeB" class="badge">未检测</span></h2>
-    <p class="sub">兼容层：compositionstart/end + textupdate(updateType) 原子提交识别；canvas 自绘文本/光标/下划线</p>
+    <h2>示例 B：canvas + EditContext（对照：搜狗降级提交在此路径不可靠） <span id="badgeB" class="badge">未检测</span></h2>
+    <p class="sub">实测现象：textupdate 会漏发；触发时 updateText 常是一次整段重写（含此前已输入的字符）。保留此示例用于观察，不作推荐方案。</p>
     <canvas id="cv" tabindex="0"></canvas>
     <p class="ecNote" id="ecNote">✘ 当前内核不支持 EditContext，本示例停用（示例 A 仍可用）。</p>
   </section>
 
+  <!-- 示例 C：canvas 渲染 + 透明 contenteditable 输入层 -->
+  <section id="secC">
+    <h2>示例 C：canvas 渲染 + 透明 contenteditable 输入层（推荐给 canvas 编辑器） <span id="badgeC" class="badge">未检测</span></h2>
+    <p class="sub">文字由 canvas 绘制，输入交给覆盖其上的透明 contenteditable —— beforeinput 是唯一能稳定截获降级提交的关卡</p>
+    <div style="position:relative;height:110px">
+      <canvas id="cvC" style="display:block;width:100%;height:110px;background:#fff;border:1px solid #d0d3d8;border-radius:8px"></canvas>
+      <div id="ceC" contenteditable="true" spellcheck="false"
+           style="position:absolute;inset:0;padding:12px 14px;font:20px/1.6 system-ui,'Microsoft YaHei';color:transparent;caret-color:#222;background:transparent;outline:none;white-space:pre-wrap;overflow:hidden;border-radius:8px"></div>
+    </div>
+  </section>
+
   <!-- 共享日志 -->
   <section>
-    <h2>共享事件日志 <span class="badge">CE=contenteditable　EC=canvas　SYS=系统</span></h2>
+    <h2>共享事件日志 <span class="badge">CE=A 输入层　CEC=C 输入层　EC=EditContext　SYS=系统</span></h2>
     <div class="toolbar">
       <button id="btnClearLog">清空日志</button>
       <button id="btnClearTextA">清空 A 文本</button>
       <button id="btnClearTextB">清空 B 文本</button>
+      <button id="btnClearTextC">清空 C 文本</button>
     </div>
     <div id="log"></div>
     <p class="note" style="margin-top:8px">
       <b>预期结果（每个示例独立判定）：</b><br>
-      ① Chrome/Edge + 搜狗（对照）：绿字 composition 三连 → 粉色 onCommit(degraded=false)；A 内联拼音，B 画布内联下划线。<br>
-      ② CEF 121+ + 搜狗（重点）：无 composition 事件 → 粉色 onCommit(degraded=true)，徽标变红。<br>
-      ③ 若 CEF 121+ 里 keydown 都收不到 → 搜狗钩子在按键进页面前已吞掉；keydown 有但 textupdate 无 → EditContext 管道问题。<br>
-      ④ 93 等旧内核：示例 B 灰显，仅示例 A 可测（A 在 93 上即可复现降级现象）。<br>
-      ⑤ <b>模式判定是动态的</b>：搜狗打字 → 徽标红；切到微软拼音，组合事件一到立即变绿；再切回搜狗 → 变红。无需刷新页面。日志中每次翻转都有"模式切换"记录。
+      ① <b>示例 A（contenteditable）/ C（canvas + 透明输入层）</b>：CEF + 搜狗下会看到粉色 onCommit(degraded=true)，且 data 恰好是本次提交的文本——<b>无累积、无遗漏</b>。这是推荐路径。<br>
+      ② <b>示例 B（EditContext）</b>：CEF + 搜狗下 textupdate 会漏发；触发时日志会显示 <code>⚠ updateText 含旧字符</code>，实增量以 delta 为准。轮询补偿能兜住大部分，但语义不稳定，仅作对照。<br>
+      ③ Chrome/Edge + 搜狗（对照）：三个示例都应走正常模式（绿字 composition → onCommit(degraded=false)），A/C 有内联拼音，B 有画布内联下划线。<br>
+      ④ 93 等旧内核：示例 B 自动灰显（EditContext 不存在），A/C 不受影响。<br>
+      ⑤ <b>模式判定是动态的</b>：搜狗打字 → 徽标红；切到微软拼音，组合事件一到立即变绿；再切回搜狗 → 变红。无需刷新页面。
     </p>
   </section>
 </main>
@@ -90,6 +102,16 @@
 "use strict";
 /* ============ 共享工具 ============ */
 const isCJK = s => !!s && /[\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF\u3000-\u303F\uFF00-\uFFEF]/.test(s);
+
+/* 文本差分：不信任事件里的 range/updateText，自己算出真实增量 */
+function textDelta(before, after) {
+  let p = 0;
+  while (p < before.length && p < after.length && before[p] === after[p]) p++;
+  let s = 0;
+  while (s < before.length - p && s < after.length - p &&
+         before[before.length - 1 - s] === after[after.length - 1 - s]) s++;
+  return { removed: before.slice(p, before.length - s), inserted: after.slice(p, after.length - s) };
+}
 
 const $log = document.getElementById('log');
 function log(src, cls, ev, detail) {
@@ -141,7 +163,8 @@ function insertAtCaret(el, str) {
   r.collapse(false);
   sel.removeAllRanges(); sel.addRange(r);
 }
-function ImeCompat(el, badgeId, src) {
+function ImeCompat(el, badgeId, src, opts = {}) {
+  const wantIntercept = () => opts.getIntercept ? opts.getIntercept() : opts.intercept === true;
   let composing = false, lastMode = null;   // composing = 真组合进行中（compositionstart..end）
   const setMode = m => {
     if (m === lastMode) return;
@@ -164,7 +187,7 @@ function ImeCompat(el, badgeId, src) {
     if (composing) return;                                         // 组合进行中：一切交给 composition 事件
     if (e.inputType !== 'insertText' || !isCJK(e.data)) return;    // 仅识别非组合期的 CJK 原子插入
     setMode('degraded');
-    if (ckIntercept.checked) {
+    if (wantIntercept()) {
       e.preventDefault();                                          // 编辑器自管：拦下默认插入，手动写入
       insertAtCaret(el, e.data);
       log(src, 'r-info', 'intercept', '已拦截默认插入，手动写入文本');
@@ -175,7 +198,7 @@ function ImeCompat(el, badgeId, src) {
 }
 
 const ce = document.getElementById('ce');
-ImeCompat(ce, 'badgeA', 'ce');
+ImeCompat(ce, 'badgeA', 'ce', { getIntercept: () => ckIntercept.checked });
 
 /* ============ 示例 B：canvas + EditContext 兼容层 ============ */
 (function () {
@@ -239,18 +262,23 @@ ImeCompat(ce, 'badgeA', 'ce');
     lastCompText = '';
   });
   ec.addEventListener('textupdate', e => {
-    const t = e.updateText ?? '';
-    const type = e.updateType ?? '';
+    const before = text;
     text = e.text ?? text;
     selStart = e.selectionStart; selEnd = e.selectionEnd;
+    const type = e.updateType ?? '';
+    const up = e.updateText ?? '';
+    const d = textDelta(before, text);      // 关键：不信 updateText/range，自己算真实增量
+    const t = d.inserted;
 
     if (composing || type === 'insertCompositionText') {
-      lastCompText = t;                          // 组合中间态：记录，不提交
+      lastCompText = t;                     // 组合中间态：记录，不提交
       compRange = [e.updateRangeStart ?? 0, e.updateRangeEnd ?? 0];
-      log('ec', 'r-upd', `textupdate(${type || '-'})`, `update="${t}" range=[${compRange[0]},${compRange[1]})`);
+      log('ec', 'r-upd', `textupdate(${type || '-'})`,
+          `update="${up}" delta="${t}" range=[${compRange[0]},${compRange[1]})`);
       draw(); return;
     }
-    log('ec', 'r-upd', `textupdate(${type || '-'})`, `update="${t}"`);
+    log('ec', 'r-upd', `textupdate(${type || '-'})`,
+        `update="${up}"${up !== t ? `　⚠ updateText 含旧字符，实增量="${t}"` : ''}`);
     // 非组合期的 CJK 插入 = 降级原子提交
     // 冷却窗：compositionend 后 300ms 内不判定，避免把正常提交的落盘误判为降级
     const inCooldown = Date.now() < compCooldownUntil;
@@ -260,6 +288,17 @@ ImeCompat(ce, 'badgeA', 'ce');
     }
     draw();
   });
+
+  // 漏发补偿：textupdate 有时不触发 → 轮询 ec.text，用文本差分校正
+  setInterval(() => {
+    if (composing || document.activeElement !== cv || !ec.text) return;
+    if (ec.text === text) return;
+    const d = textDelta(text, ec.text);
+    text = ec.text;
+    log('ec', 'r-info', '轮询补偿', `textupdate 疑似漏发　delta="${d.inserted}"`);
+    if (isCJK(d.inserted)) onCommit('ec', d.inserted, { degraded: true, type: 'poll' });
+    draw();
+  }, 250);
   ec.addEventListener('characterboundsupdate', e => {
     const bounds = [];
     for (let i = e.rangeStart; i < e.rangeEnd && i < charLayout.length; i++) {
@@ -278,9 +317,47 @@ ImeCompat(ce, 'badgeA', 'ce');
   resize();
 })();
 
+/* ============ 示例 C：canvas 渲染 + 透明 contenteditable 输入层（推荐） ============ */
+(function () {
+  const ceC = document.getElementById('ceC');
+  const cvC = document.getElementById('cvC');
+  const dpr = window.devicePixelRatio || 1;
+
+  function drawC() {
+    const w = cvC.clientWidth, h = cvC.clientHeight;
+    if (cvC.width !== Math.round(w * dpr) || cvC.height !== Math.round(h * dpr)) {
+      cvC.width = Math.round(w * dpr); cvC.height = Math.round(h * dpr);
+    }
+    const ctx = cvC.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    ctx.font = '20px system-ui, "Microsoft YaHei"';
+    ctx.textBaseline = 'top';
+    const text = ceC.innerText.replace(/\n$/, '');
+    if (!text) { ctx.fillStyle = '#aaa'; ctx.fillText('点击此处，用搜狗输入法打字（canvas 渲染 / 透明输入层接收）', 14, 14); return; }
+    ctx.fillStyle = '#222';
+    ctx.fillText(text, 14, 14);
+  }
+
+  // 复用同一套兼容层：输入层是真实 DOM，beforeinput 稳定触发
+  ImeCompat(ceC, 'badgeC', 'cec', { intercept: false });
+  ceC.addEventListener('input', e => {
+    log('cec', 'r-upd', `input(${e.inputType || '-'})`, '输入层变更 → canvas 重绘');
+    drawC();
+  });
+  ceC.addEventListener('compositionupdate', drawC);
+  ceC.addEventListener('compositionend', drawC);
+  new ResizeObserver(drawC).observe(cvC);
+  drawC();
+})();
+
 document.getElementById('btnClearLog').onclick = () => $log.innerHTML = '';
 document.getElementById('btnClearTextA').onclick = () => { ce.innerHTML = ''; ce.focus(); };
-log('sys', 'r-info', '就绪', '分别在两个输入区点击聚焦，用搜狗打字对比');
+document.getElementById('btnClearTextC').onclick = () => {
+  document.getElementById('ceC').innerHTML = ''; document.getElementById('ceC').focus();
+  document.getElementById('cvC').getContext('2d').clearRect(0, 0, 999, 999);
+};
+log('sys', 'r-info', '就绪', 'A / B / C 三个输入区分别点击聚焦，用搜狗打字对比');
 </script>
 </body>
 </html>
