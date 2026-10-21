@@ -187,7 +187,7 @@ composition 事件不是输入法"发送"的消息。输入法没有任何直通
 
 纸上得来终觉浅。我准备了一个可以直接打开的验证页面：
 
-**<https://www.aqcoder.com/demo/cef-sogou-ime-compat.html>**
+**<https://ravenq.github.io/demo/cef-sogou-ime-compat.html>**
 
 页面里并排放了两个最小编辑器，各自独立判定模式，共享一份事件日志：
 

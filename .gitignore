@@ -5,3 +5,5 @@ docs/.vitepress/cache/
 
 *.log
 yarn-error.log
+
+wechat/
