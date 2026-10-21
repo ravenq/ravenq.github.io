@@ -1,12 +1,3 @@
----
-layout: home
-
-hero:
-  name: Ravenq 的技术博客
-  text: 编码、调试与踩坑记录
-  tagline: 博客主站是 aqcoder.com，这里保留文章的 GitHub 备份
----
-
 ## 全部文章
 
 ### Linux 与系统

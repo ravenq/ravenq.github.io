@@ -51,28 +51,11 @@ export default defineConfig({
         items: [
           {
             text: 'markdown-it-vue',
-            link: 'https://www.github.com/ravenq/markdown-it-vue'
+            link: 'https://github.com/ravenq/markdown-it-vue'
           },
           {
-            text: 'vue-cli-plugin-component-lib',
-            link: 'https://www.github.com/ravenq/vue-cli-plugin-component-lib'
-          },
-          {
-            text: 'GVF Project',
-            items: [
-              {
-                text: 'gvf-server',
-                link: 'https://www.github.com/ravenq/gvf-server'
-              },
-              {
-                text: 'gvf-client',
-                link: 'https://www.github.com/ravenq/gvf-client'
-              },
-              {
-                text: 'gvf-admin',
-                link: 'https://www.github.com/ravenq/gvf-admin'
-              }
-            ]
+            text: 'office-rs',
+            link: 'https://github.com/office-rs'
           }
         ]
       },
