@@ -1,0 +1,15 @@
+/* VitePress 的段落样式（line-height: 1.7、p 外边距）会泄漏进 mermaid
+   SVG 的 foreignObject，导致节点文字比 mermaid 计算的节点尺寸更高，
+   最后一行被裁掉。这里把 mermaid 内部文本恢复紧凑排版。 */
+.mermaid svg foreignObject div,
+.mermaid svg foreignObject span,
+.mermaid svg foreignObject p,
+.mermaid svg .nodeLabel p,
+.mermaid svg .edgeLabel p,
+.mermaid svg .label p,
+.mermaid svg .nodeLabel span,
+.mermaid svg .edgeLabel span {
+  line-height: 1.25 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}

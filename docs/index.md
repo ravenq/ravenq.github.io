@@ -62,6 +62,12 @@
 - [CEF 介绍与分析](blog/7.md)
 - [CEF 应用里搜狗输入法“失灵”之谜：从现象到根因，附可运行的验证 Demo](blog/cef-sogou-ime-composition.md)
 
+### Rust 与文档引擎
+
+- [我们做了一个“Word 编辑器”基础组件：Web 和 Native，一套内核（项目推广）](blog/rword-promo.md)
+- [打一个字等 5.3 秒：Rust 版 Word 排版引擎的优化之路](blog/rword-layout-performance.md)
+- [GPU 优先，CPU 兜底：Word 编辑器的渲染路径选型](blog/rword-gpu-cpu-rendering.md)
+
 ### 工具与其他
 
 - [Docker 简明教程](blog/6.md)

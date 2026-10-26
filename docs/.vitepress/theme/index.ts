@@ -1,6 +1,7 @@
 import { defineComponent, h, onMounted } from 'vue'
 import { useData } from 'vitepress'
 import DefaultTheme from 'vitepress/theme'
+import './style.css'
 
 /**
  * 旧站文章地址形如 /blog.md/git-cli.html，

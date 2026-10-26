@@ -2,13 +2,14 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitepress'
+import { withMermaid } from 'vitepress-plugin-mermaid'
 
 const configDir = path.dirname(fileURLToPath(import.meta.url))
 const blogDir = path.resolve(configDir, '../blog')
 
 interface Post {
   link: string
-  title: string
+  text: string
 }
 
 function readTitle(file: string): string {
@@ -24,11 +25,12 @@ const posts: Post[] = fs
   .filter((file) => fs.statSync(path.join(blogDir, file)).size > 0)
   .map((file) => ({
     link: `/blog/${file.replace(/\.md$/, '')}`,
-    title: readTitle(file)
+    text: readTitle(file)
   }))
-  .sort((a, b) => a.title.localeCompare(b.title, 'zh-Hans-CN'))
+  .sort((a, b) => a.text.localeCompare(b.text, 'zh-Hans-CN'))
 
-export default defineConfig({
+export default withMermaid(
+  defineConfig({
   lang: 'zh-CN',
   title: 'Ravenq 的技术博客',
   description: 'Ravenq 的技术博客',
@@ -80,4 +82,5 @@ export default defineConfig({
       copyright: 'Copyright © Ravenq'
     }
   }
-})
+  })
+)
