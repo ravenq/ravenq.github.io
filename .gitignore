@@ -2,8 +2,16 @@ node_modules/
 
 docs/.vitepress/dist/
 docs/.vitepress/cache/
+docs/blog/imgs/.mermaid-cache/
 
 *.log
 yarn-error.log
 
 wechat/
+.zcode/skills/
+.trae/skills/
+.qwen/skills/
+.baoyu-skills/
+.agents/skills/
+.screenshots/.tmp/
+skills-lock.json
